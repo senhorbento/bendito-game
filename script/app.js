@@ -334,8 +334,8 @@ function renderResults() {
   screen.append(stage);
 
   const actions = createElement("div", "actions");
-  actions.append(createButton("Jogar novamente", "button", () => updateState(createRoundState(state.players, state.benditoCount, state.categoryKey || "random", state.pair.word))));
-  actions.append(createButton("Alterar jogadores", "button secondary", () => {
+  actions.append(createButton("Vamo de novo", "button", () => updateState(createRoundState(state.players, state.benditoCount, state.categoryKey || "random", state.pair.word))));
+  actions.append(createButton("Chegou mais gente", "button secondary", () => {
     setupPlayers = [...state.players];
     clearState();
     state = createSetupState(setupPlayers);
