@@ -328,9 +328,9 @@ function renderResults() {
   screen.append(createElement("h1", "", "Quem estava no disfarce?"));
 
   const stage = createElement("div", "results-stage");
-  stage.append(createResultsPanel("results-correct", "Acertaram", "police", correctResults.map((result) => state.players[result.voterIndex])));
+  stage.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
   stage.append(createMalandroFigure(benditoNames));
-  stage.append(createResultsPanel("results-incorrect", "Não acertaram", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
+  stage.append(createResultsPanel("results-incorrect", "Deu mole", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
   screen.append(stage);
 
   const actions = createElement("div", "actions");
