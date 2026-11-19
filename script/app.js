@@ -81,6 +81,11 @@ function renderHomeScreen() {
   logo.src = "./assets/bendito-logo.png";
   logo.alt = "Bendito";
   screen.append(logo);
+  const characterBanner = document.createElement("img");
+  characterBanner.className = "home-character-banner";
+  characterBanner.src = "./assets/sprites/banner.png";
+  characterBanner.alt = "Policial, Bendito e participante confuso em pixel art";
+  screen.append(characterBanner);
   screen.append(createElement("p", "home-how-to-play", "A galera recebe uma palavra secreta.\nO Bendito recebe só uma pista.\nTroca ideia, vota e vê quem tava no sapatinho."));
   screen.append(createButton("Jogar", "button", () => {
     state = createSetupState(setupPlayers);
