@@ -69,19 +69,37 @@ Bendito-Game/
 
 ### Visual direction
 
--   The visual identity should take inspiration from the color palette,
-    atmosphere, and energetic graphic style associated with **Grand
-    Theft Auto VI**.
--   Use a bold, urban, contemporary visual language.
--   The Bendito logo must use a graffiti/tag-inspired lettering style.
--   Include visual references to generative AI, computational art,
-    digital artifacts, or AI-assisted creativity.
--   Do **not** include written labels such as "AI GENERATED" or
-    equivalent claims in the interface.
--   Do not copy GTA logos, artwork, characters, or other protected
-    assets. Use the game only as visual inspiration.
--   The interface must remain readable, accessible, and practical on
-    small screens. Visual effects must not interfere with gameplay.
+-   Redesign the interface as a polished mobile party game, never as a
+    Windows Forms application, dashboard, CRUD interface, business tool, or
+    traditional desktop website.
+-   Use an original visual direction inspired by a tropical nightlife,
+    neon-lit Vice City atmosphere: summer nights, sunsets, urban culture,
+    street aesthetics, digital art, and generative visual elements.
+-   Use this design-system palette: Neon Pink `#FF4FA3`, Deep Purple
+    `#7138B8`, Electric Blue `#36B9E9`, Sunset Orange `#FF873D`, Tropical
+    Yellow `#F9D65C`, Dark Background `#171522`, and Warm White `#FFF4E8`.
+-   Prefer dark backgrounds with deliberate neon accents. Gradients may
+    combine pink, purple, orange, and blue, but do not use every color in
+    every component; preserve hierarchy and consistency.
+-   The Bendito logo must be a clearly legible, graffiti-inspired mark that
+    combines street art with modern digital culture. Do not copy GTA logos,
+    artwork, characters, or other protected assets.
+-   Use expressive typography for headings and branding, paired with a
+    clean, readable sans-serif for functional interface text. Avoid generic
+    system fonts and default browser typography when choosing visual assets
+    or local fonts.
+-   Use layered surfaces, transparency, gradients, rounded or custom shapes,
+    subtle neon glows, and shadows instead of generic white rectangles or
+    excessive borders.
+-   Use full viewport layouts with safe-area support, no horizontal scroll,
+    large touch targets, generous spacing, clear thumb-reachable actions,
+    and portrait-first responsive behavior that also works in landscape.
+-   Add lightweight transitions, pressed states, reveal effects, countdown
+    motion, and result feedback only where they improve the game experience.
+    Respect `prefers-reduced-motion` and avoid distracting animation.
+-   Keep all visual effects readable and practical on small screens.
+-   Do **not** include written labels such as "AI GENERATED" or equivalent
+    claims in the interface.
 
 ## 5. Game Flow and Screens
 
@@ -321,16 +339,30 @@ Testing is a required part of development, not an optional final step.
 
 When working on this project:
 
-1.  Inspect the existing project structure and relevant files before
-    making changes.
-2.  Preserve working functionality unless a requirement explicitly calls
-    for changing it.
-3.  Make focused changes that fit the existing architecture.
-4.  Add or update tests alongside implementation changes.
-5.  Run tests and verify the affected user flow.
-6.  For every bug fix, add a regression test.
-7.  Keep all created and modified project files inside `Bendito-Game/`.
-8.  Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
+1.  Inspect the entire existing application, project structure, relevant
+    files, current screen structure, and shared UI components before
+    changing any file.
+2.  For a visual redesign, identify CSS and DOM patterns that cause a
+    desktop-form, dashboard, or generic CRUD appearance.
+3.  Before implementing a visual redesign, identify required assets,
+    fonts, and visual resources, then present a visual implementation plan
+    and wait for the project owner's approval.
+4.  Preserve existing game logic and working functionality unless a product
+    requirement explicitly calls for changing it. Visual work must not
+    modify game rules, voting behavior, assignments, persistence, or timer
+    logic.
+5.  Make focused changes that fit the existing architecture and keep the
+    project structure consistent with this document.
+6.  Use responsive CSS and necessary DOM adjustments for visual work, without
+    introducing frameworks, UI libraries, or unnecessary dependencies.
+7.  Add or update tests alongside implementation changes.
+8.  Run the existing automated tests and verify every affected user flow.
+9.  Test visual changes on mobile-sized viewports in portrait and landscape,
+    checking touch targets, safe areas, readability, overflow, transitions,
+    and reduced-motion behavior.
+10. For every bug fix, add a regression test.
+11. Keep all created and modified project files inside `Bendito-Game/`.
+12. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
 
 ## 12. Product Owner Decisions
@@ -346,15 +378,16 @@ The following decisions are explicit requirements:
 -   The minimum number of participants is 3.
 -   Names are limited to 20 characters.
 -   The participant list can be reordered.
--   The number of Benditos uses the progression as the default: 3
-    participants = 1 Bendito, 4 participants = 2 Benditos, and so on.
-    The user may adjust this number within valid bounds, always keeping
-    at least one Bendito and at least one regular player.
+-   The initial number of Benditos is always 1 for a valid group. The user
+    may increase it with the interface controls within valid bounds: 3
+    participants allow only 1 Bendito, and larger groups increase the
+    maximum while always keeping at least one regular player.
 -   There is no fixed maximum number of participants. The interface must
     remain usable with long participant lists through appropriate scrolling
     and layout behavior.
--   Secrets are revealed one participant at a time through an upward
-    swipe.
+-   Secrets are revealed one participant at a time through a primary tap
+    interaction labeled "Toque para revelar sua palavra", with accessible
+    keyboard support and optional gesture support.
 -   The discussion timer lasts 2 minutes.
 -   Voting is performed by passing one device between participants.
 -   Benditos do not vote, but their voting step is still displayed with

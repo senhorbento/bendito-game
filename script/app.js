@@ -91,9 +91,9 @@ function renderHomeScreen() {
 
 function renderSetup() {
   const screen = createElement("section", "screen");
-  screen.append(createElement("span", "eyebrow", "Prepare a rodada"));
-  screen.append(createElement("h1", "", "Quem vai jogar?"));
-  screen.append(createElement("p", "muted", "Adicione os participantes e passe o celular de mão em mão."));
+  screen.append(createElement("span", "eyebrow", "Nova rodada"));
+  screen.append(createElement("h1", "", "Quem está no bonde?"));
+  screen.append(createElement("p", "muted", "Monte a turma e prepare o celular para circular."));
 
   const addForm = createElement("form", "row");
   const input = createElement("input", "input");
@@ -215,7 +215,7 @@ function removePlayer(index) {
 function renderReveal() {
   const screen = createElement("section", "screen centered");
   const player = state.players[state.revealIndex];
-  screen.append(createElement("span", "eyebrow", `Participante ${state.revealIndex + 1} de ${state.players.length}`));
+  screen.append(createElement("span", "eyebrow", `Segredo ${state.revealIndex + 1} / ${state.players.length}`));
   screen.append(createElement("h1", "", player));
   const instruction = createElement("p", "muted", state.revealShown ? "Memorize sua palavra e oculte a tela antes de passar o celular." : "Toque para revelar sua palavra.");
   const card = createElement("button", "secret-card reveal-card", "");
@@ -248,8 +248,8 @@ function renderReveal() {
 
 function renderDiscussion() {
   const screen = createElement("section", "screen centered");
-  screen.append(createElement("span", "eyebrow", "Hora da conversa"));
-  screen.append(createElement("h1", "", "Descubram o Bendito"));
+  screen.append(createElement("span", "eyebrow", "Clima da rodada"));
+  screen.append(createElement("h1", "", "Solta a conversa"));
   screen.append(createElement("p", "muted", `Começa falando: ${state.players[state.starterIndex]}`));
   const timer = createElement("strong", "timer", formatRemainingTime(getRemainingTime(state.timerEndsAt)));
   screen.append(timer, createElement("p", "muted", "Conversem sobre as pistas."));
@@ -306,8 +306,8 @@ function submitVote(targetIndex) {
 
 function renderResults() {
   const screen = createElement("section", "screen");
-  screen.append(createElement("span", "eyebrow", "Fim da rodada"));
-  screen.append(createElement("h1", "", "Quem era Bendito?"));
+  screen.append(createElement("span", "eyebrow", "Revelação final"));
+  screen.append(createElement("h1", "", "Quem estava no disfarce?"));
   const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
   const benditoBox = createElement("div", "result-item");
   benditoBox.append(createElement("strong", "", benditoNames.join(", ")));
