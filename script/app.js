@@ -313,22 +313,21 @@ function submitVote(targetIndex) {
 }
 
 function renderResults() {
-  const screen = createElement("section", "screen");
+  const screen = createElement("section", "screen results-screen");
+  const results = (state.results || []).filter((result) => result.targetIndex !== undefined);
+  const correctResults = results.filter((result) => result.correct);
+  const incorrectResults = results.filter((result) => !result.correct);
+  const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
+
   screen.append(createElement("span", "eyebrow", "Revelação final"));
   screen.append(createElement("h1", "", "Quem estava no disfarce?"));
-  const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
-  const benditoBox = createElement("div", "result-item");
-  benditoBox.append(createElement("strong", "", benditoNames.join(", ")));
-  benditoBox.append(createElement("span", "badge", `${benditoNames.length} Bendito${benditoNames.length > 1 ? "s" : ""}`));
-  screen.append(benditoBox);
-  const resultsList = createElement("div", "stack");
-  (state.results || []).filter((result) => result.targetIndex !== undefined).forEach((result) => {
-    const item = createElement("div", "result-item");
-    item.append(createElement("span", "", `${state.players[result.voterIndex]} → ${state.players[result.targetIndex]}`));
-    item.append(createElement("span", `badge ${result.correct ? "good" : "bad"}`, result.correct ? "Acertou" : "Errou"));
-    resultsList.append(item);
-  });
-  screen.append(resultsList);
+
+  const stage = createElement("div", "results-stage");
+  stage.append(createResultsPanel("results-correct", "Acertaram", "police", correctResults.map((result) => state.players[result.voterIndex])));
+  stage.append(createMalandroFigure(benditoNames));
+  stage.append(createResultsPanel("results-incorrect", "Não acertaram", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
+  screen.append(stage);
+
   const actions = createElement("div", "actions");
   actions.append(createButton("Jogar novamente", "button", () => updateState(createRoundState(state.players, state.benditoCount, state.categoryKey || "random", state.pair.word))));
   actions.append(createButton("Alterar jogadores", "button secondary", () => {
@@ -340,4 +339,36 @@ function renderResults() {
   }));
   screen.append(actions);
   app.append(screen);
+}
+
+function createResultsPanel(className, title, characterType, names) {
+  const panel = createElement("section", `results-side-panel ${className}`);
+  panel.append(createCharacter(characterType));
+  panel.append(createElement("h2", "results-panel-title", title));
+  const list = createElement("div", "results-names");
+  if (names.length === 0) list.append(createElement("span", "results-empty", "Ninguém desta vez"));
+  names.forEach((name) => list.append(createElement("span", "result-name", name)));
+  panel.append(list);
+  return panel;
+}
+
+function createCharacter(type) {
+  const character = createElement("div", `results-character character-${type}`);
+  character.setAttribute("aria-hidden", "true");
+  character.append(createElement("span", "character-hat"));
+  character.append(createElement("span", "character-head"));
+  character.append(createElement("span", "character-body"));
+  character.append(createElement("span", "character-arm character-arm-left"));
+  character.append(createElement("span", "character-arm character-arm-right"));
+  character.append(createElement("span", "character-leg character-leg-left"));
+  character.append(createElement("span", "character-leg character-leg-right"));
+  return character;
+}
+
+function createMalandroFigure(names) {
+  const figure = createElement("section", "results-malandro");
+  figure.append(createCharacter("malandro"));
+  figure.append(createElement("span", "results-role", "Bendito"));
+  figure.append(createElement("strong", "results-bendito-name", names.join(" + ")));
+  return figure;
 }

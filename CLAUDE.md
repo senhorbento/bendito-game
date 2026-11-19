@@ -258,6 +258,13 @@ export const animals = [
 -   Votes and assignments remain private until the results screen.
 -   The results screen identifies every Bendito and every participant
     who voted correctly.
+-   The results screen uses a visual three-part composition: an original
+    malandro character in the center with the Bendito name below, an
+    original police character on the left with correct voters, and an
+    original otário character on the right with incorrect voters.
+-   Results illustrations must be original CSS or SVG artwork and must not
+    copy protected characters, logos, or branded assets. The composition
+    must remain readable in portrait and landscape layouts.
 
 ## 8. Persistence and Recovery
 
