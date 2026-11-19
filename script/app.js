@@ -73,8 +73,12 @@ function render() {
 }
 
 function renderHomeScreen() {
-  const screen = createElement("section", "screen centered");
-  screen.append(createElement("div", "brand", "Bendito"));
+  const screen = createElement("section", "screen centered home-screen");
+  const logo = document.createElement("img");
+  logo.className = "brand-art";
+  logo.src = "./assets/bendito-logo.png";
+  logo.alt = "Bendito";
+  screen.append(logo);
   screen.append(createButton("Jogar", "button", () => {
     state = createSetupState(setupPlayers);
     saveState(state);

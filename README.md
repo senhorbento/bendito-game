@@ -15,7 +15,7 @@ Bendito is a mobile-first social deduction party game. Most players receive the 
 - Round results with vote evaluation.
 - New rounds with new assignments.
 - Recovery through `localStorage`.
-- No image assets or external runtime dependencies.
+- Original local PNG and SVG artwork with no external runtime dependencies.
 
 ## Run locally
 
@@ -53,6 +53,10 @@ node --check script/categories/food.js
 
 ```text
 ├── assets/
+│   ├── bendito-logo.png
+│   ├── digital-scribble.svg
+│   ├── glitch-stamp.svg
+│   └── urban-grid.svg
 ├── index.html
 ├── script/
 │   ├── categories/
