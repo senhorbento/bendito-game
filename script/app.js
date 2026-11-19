@@ -1,3 +1,4 @@
+import { categories } from "./word-bank.js";
 import {
   canVote,
   evaluateVotes,
@@ -33,6 +34,7 @@ function isRecoverableState(candidate) {
     && candidate.pair
     && typeof candidate.pair.word === "string"
     && typeof candidate.pair.clue === "string"
+    && (candidate.phase === "setup" || typeof candidate.categoryKey === "string")
     && (candidate.phase !== "discussion" || Number.isInteger(candidate.starterIndex))
     && (candidate.phase !== "voting" || typeof candidate.votingReady === "boolean");
 }
@@ -100,8 +102,9 @@ function renderSetup() {
   input.placeholder = "Nome do participante";
   input.setAttribute("aria-label", "Nome do participante");
   const error = createElement("p", "error");
-  const addButton = createButton("Adicionar", "button secondary");
+  const addButton = createButton("+", "button secondary add-player-button");
   addButton.type = "submit";
+  addButton.setAttribute("aria-label", "Adicionar participante");
   addForm.append(input, addButton);
   addForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -118,39 +121,63 @@ function renderSetup() {
   screen.append(addForm, error);
 
   const list = createElement("div", "player-list");
+  let draggedIndex = null;
   setupPlayers.forEach((player, index) => {
     const item = createElement("div", "player-item");
-    item.append(createElement("span", "", player));
-    item.append(createButton("↑", "icon-button move-up", () => reorderPlayer(index, index - 1), index === 0));
-    item.append(createButton("↓", "icon-button move-down", () => reorderPlayer(index, index + 1), index === setupPlayers.length - 1));
+    item.draggable = true;
+    item.dataset.index = index;
+    item.append(createElement("span", "drag-handle", `☷ ${player}`));
     item.append(createButton("×", "icon-button", () => removePlayer(index), false));
+    item.addEventListener("dragstart", () => { draggedIndex = index; item.classList.add("dragging"); });
+    item.addEventListener("dragend", () => { draggedIndex = null; item.classList.remove("dragging"); });
+    item.addEventListener("dragover", (event) => event.preventDefault());
+    item.addEventListener("drop", (event) => {
+      event.preventDefault();
+      if (draggedIndex !== null && draggedIndex !== index) reorderPlayer(draggedIndex, index);
+    });
     list.append(item);
   });
   screen.append(list);
 
   const countField = createElement("div", "field");
   const countLabel = createElement("label", "", "Quantidade de Benditos");
-  const countSelect = createElement("select", "select");
-  countSelect.setAttribute("aria-label", "Quantidade de Benditos");
+  const countControl = createElement("div", "number-control");
   const bounds = getBenditoBounds(setupPlayers.length);
-  if (bounds.max > 0) {
-    for (let count = bounds.min; count <= bounds.max; count += 1) {
-      const option = createElement("option", "", `${count} Bendito${count > 1 ? "s" : ""}`);
-      option.value = count;
-      if (count === (state.benditoCount || getDefaultBenditoCount(setupPlayers.length))) option.selected = true;
-      countSelect.append(option);
-    }
-  } else {
-    const option = createElement("option", "", "Adicione pelo menos 3 jogadores");
-    countSelect.append(option);
-    countSelect.disabled = true;
-  }
-  countField.append(countLabel, countSelect);
+  const currentCount = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
+  const countValue = createElement("output", "count-value", bounds.max > 0 ? String(currentCount) : "—");
+  countValue.setAttribute("aria-live", "polite");
+  const decrementButton = createButton("−", "icon-button", () => updateBenditoCount(currentCount - 1), bounds.max === 0 || currentCount <= bounds.min);
+  decrementButton.setAttribute("aria-label", "Diminuir quantidade de Benditos");
+  const incrementButton = createButton("+", "icon-button", () => updateBenditoCount(currentCount + 1), bounds.max === 0 || currentCount >= bounds.max);
+  incrementButton.setAttribute("aria-label", "Aumentar quantidade de Benditos");
+  countControl.append(decrementButton, countValue, incrementButton);
+  countField.append(countLabel, countControl);
   screen.append(countField);
+
+  const categoryField = createElement("div", "field");
+  const categoryLabel = createElement("label", "", "Categoria");
+  const categorySelect = createElement("select", "select");
+  categorySelect.setAttribute("aria-label", "Categoria da rodada");
+  const randomOption = createElement("option", "", "Aleatória");
+  randomOption.value = "random";
+  categorySelect.append(randomOption);
+  Object.entries(categories).forEach(([key, category]) => {
+    const option = createElement("option", "", category.label);
+    option.value = key;
+    option.selected = (state.categoryKey || "random") === key;
+    categorySelect.append(option);
+  });
+  categorySelect.value = state.categoryKey || "random";
+  categorySelect.addEventListener("change", () => {
+    state = { ...state, categoryKey: categorySelect.value };
+    saveState(state);
+  });
+  categoryField.append(categoryLabel, categorySelect);
+  screen.append(categoryField);
 
   const actions = createElement("div", "actions");
   const startButton = createButton("Iniciar", "button", () => {
-    const nextState = createRoundState(setupPlayers, Number(countSelect.value));
+    const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random");
     updateState(nextState);
   }, setupPlayers.length < 3);
   actions.append(startButton);
@@ -163,14 +190,24 @@ function reorderPlayer(from, to) {
   const nextPlayers = [...setupPlayers];
   [nextPlayers[from], nextPlayers[to]] = [nextPlayers[to], nextPlayers[from]];
   setupPlayers = nextPlayers;
-  state = createSetupState(setupPlayers);
+  state = { ...createSetupState(setupPlayers), benditoCount: Math.min(Math.max(state.benditoCount || 0, getBenditoBounds(setupPlayers.length).min), getBenditoBounds(setupPlayers.length).max) };
+  saveState(state);
+  render();
+}
+
+function updateBenditoCount(count) {
+  const bounds = getBenditoBounds(setupPlayers.length);
+  if (count < bounds.min || count > bounds.max) return;
+  state = { ...createSetupState(setupPlayers), benditoCount: count };
   saveState(state);
   render();
 }
 
 function removePlayer(index) {
   setupPlayers = setupPlayers.filter((_, playerIndex) => playerIndex !== index);
-  state = createSetupState(setupPlayers);
+  const bounds = getBenditoBounds(setupPlayers.length);
+  const benditoCount = bounds.max > 0 ? Math.min(Math.max(state.benditoCount || bounds.min, bounds.min), bounds.max) : 0;
+  state = { ...createSetupState(setupPlayers), benditoCount };
   saveState(state);
   render();
 }
@@ -180,33 +217,23 @@ function renderReveal() {
   const player = state.players[state.revealIndex];
   screen.append(createElement("span", "eyebrow", `Participante ${state.revealIndex + 1} de ${state.players.length}`));
   screen.append(createElement("h1", "", player));
-  const instruction = createElement("p", "muted", state.revealShown ? "Memorize sua informação e oculte a tela antes de passar o celular." : "Deslize para cima para revelar sua informação.");
-  const card = createElement("div", "secret-card swipe-zone");
-  card.setAttribute("role", "button");
-  card.setAttribute("tabindex", "0");
-  card.setAttribute("aria-label", state.revealShown ? "Sua informação secreta" : "Deslize para cima para revelar");
+  const instruction = createElement("p", "muted", state.revealShown ? "Memorize sua palavra e oculte a tela antes de passar o celular." : "Toque para revelar sua palavra.");
+  const card = createElement("button", "secret-card reveal-card", "");
+  card.type = "button";
+  card.setAttribute("aria-label", state.revealShown ? "Sua palavra secreta" : "Toque para revelar sua palavra");
   if (state.revealShown) card.append(createElement("strong", "secret", state.secrets[state.revealIndex].secret));
-  else card.append(createElement("span", "hint", "↑ deslize para cima ↑"));
+  else {
+    card.append(createElement("span", "reveal-icon", "✦"));
+    card.append(createElement("span", "hint", "Toque para revelar"));
+  }
   screen.append(instruction, card);
 
   const reveal = () => {
     if (!state.revealShown) updateState({ ...state, revealShown: true });
   };
+  card.addEventListener("click", reveal);
   card.addEventListener("keydown", (event) => {
     if (event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") reveal();
-  });
-  let startY = null;
-  card.addEventListener("touchstart", (event) => { startY = event.changedTouches[0].clientY; }, { passive: true });
-  card.addEventListener("touchend", (event) => {
-    if (startY !== null && startY - event.changedTouches[0].clientY > 35) reveal();
-    else reveal();
-    startY = null;
-  }, { passive: true });
-  card.addEventListener("mousedown", (event) => { startY = event.clientY; });
-  card.addEventListener("mouseup", (event) => {
-    if (startY !== null && startY - event.clientY > 35) reveal();
-    else reveal();
-    startY = null;
   });
 
   if (state.revealShown) {
@@ -295,7 +322,7 @@ function renderResults() {
   });
   screen.append(resultsList);
   const actions = createElement("div", "actions");
-  actions.append(createButton("Jogar novamente", "button", () => updateState(createRoundState(state.players, state.benditoCount, state.pair.word))));
+  actions.append(createButton("Jogar novamente", "button", () => updateState(createRoundState(state.players, state.benditoCount, state.categoryKey || "random", state.pair.word))));
   actions.append(createButton("Alterar jogadores", "button secondary", () => {
     setupPlayers = [...state.players];
     clearState();

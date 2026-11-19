@@ -106,10 +106,11 @@ Implement the following screen sequence.
     player count is reached.
 -   Allow the user to configure the number of Benditos once the minimum
     player count has been reached.
--   The number of Benditos follows the progression specified by the
-    product owner: 3 players = 1 Bendito, 4 players = 2 Benditos, and so
-    on. Implement this progression consistently and keep the selection
-    within valid bounds. The game must always have at least one
+-   The initial number of Benditos is always 1 once there are at least 3
+    participants. The maximum allowed number increases with the participant
+    count while always preserving at least one regular player: 3 players
+    allow only 1 Bendito, 4 players allow up to 2, and larger groups allow
+    up to participant count minus 1. The game must always have at least one
     non-Bendito player.
 -   Make the selected number of Benditos clear before the game starts.
 -   Preserve the participant list when the user returns to this screen
@@ -192,6 +193,13 @@ Implement the following screen sequence.
 -   Store all word and clue data locally in JavaScript.
 -   Organize the bank into separate JavaScript files by category under
     `script/categories/`.
+-   Every category must contain exactly 50 word-and-clue entries.
+-   The initial categories are food, animals, places, sports, movies, and
+    objects; adding another category must not require changing the game
+    engine.
+-   After participant setup, allow the user to select exactly one category
+    or choose the random category option. Persist the selected mode for the
+    active round and use it when starting a new round.
 -   Each entry must associate one main word with a clue consisting of
     exactly one related word, without being identical to or an obvious
     spelling variation of the main word.

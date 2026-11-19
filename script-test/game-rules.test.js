@@ -7,11 +7,18 @@ import {
   validateName
 } from "../script/game-rules.js";
 import { beginVotingStep, createRoundState, startDiscussion, startVoting } from "../script/game-state.js";
+import { getDefaultBenditoCount } from "../script/game-rules.js";
 
 const tests = [
   ["rejects empty names", () => validateName("", []) !== ""],
   ["rejects names over twenty characters", () => validateName("a".repeat(21), []) !== ""],
-  ["accepts three players", () => getBenditoBounds(3).max === 2],
+  ["starts every valid group with one Bendito", () => {
+    return getDefaultBenditoCount(3) === 1 && getDefaultBenditoCount(4) === 1 && getDefaultBenditoCount(10) === 1;
+  }],
+  ["allows exactly one Bendito for three players", () => {
+    const bounds = getBenditoBounds(3);
+    return bounds.min === 1 && bounds.max === 1;
+  }],
   ["keeps one regular player", () => getBenditoBounds(5).max === 4],
   ["assigns the requested Benditos", () => createRoleAssignments(5, 2).filter((role) => role === "bendito").length === 2],
   ["blocks self voting", () => !canVote(0, 0, ["regular", "bendito"], [])],

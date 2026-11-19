@@ -17,11 +17,12 @@ export function validateName(value, existingNames = []) {
 }
 
 export function getDefaultBenditoCount(playerCount) {
-  return Math.max(1, playerCount - 2);
+  return playerCount >= MIN_PLAYERS ? 1 : 0;
 }
 
 export function getBenditoBounds(playerCount) {
   if (playerCount < MIN_PLAYERS) return { min: 0, max: 0 };
+  if (playerCount === 3) return { min: 1, max: 1 };
   return { min: 1, max: playerCount - 1 };
 }
 

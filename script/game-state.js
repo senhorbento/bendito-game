@@ -10,17 +10,20 @@ export function createHomeState(players = []) {
   return { phase: "home", players };
 }
 
-export function createSetupState(players = []) {
-  return { phase: "setup", players, benditoCount: players.length >= 3 ? getDefaultBenditoCount(players.length) : 0 };
+export function createSetupState(players = [], categoryKey = "random") {
+  return { phase: "setup", players, categoryKey, benditoCount: players.length >= 3 ? getDefaultBenditoCount(players.length) : 0 };
 }
 
-export function createRoundState(players, benditoCount, previousWord = "") {
-  const pair = selectWordPair(previousWord);
+export function createRoundState(players, benditoCount, categoryKey = "random", previousWord = "") {
+  const selection = selectWordPair(categoryKey, previousWord);
+  const pair = selection.pair;
   const roles = createRoleAssignments(players.length, benditoCount);
   return {
     phase: "reveal",
     players: [...players],
     benditoCount,
+    categoryKey: selection.category.key,
+    categoryLabel: selection.category.label,
     pair,
     roles,
     secrets: createSecrets(players, roles, pair),
