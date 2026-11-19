@@ -99,6 +99,7 @@ function renderHomeScreen() {
     render();
   }));
   app.append(screen);
+  appendVersionFooter(screen);
 }
 
 function renderSetup() {
@@ -179,7 +180,7 @@ function renderSetup() {
   screen.append(categoryField);
 
   const actions = createElement("div", "actions");
-  const startButton = createButton("Iniciar", "button", () => {
+  const startButton = createButton("Vamo lá", "button", () => {
     const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random");
     updateState(nextState);
   }, setupPlayers.length < 3);
@@ -187,6 +188,7 @@ function renderSetup() {
   actions.append(startButton);
   screen.append(actions);
   app.replaceChildren(screen);
+  appendVersionFooter(screen);
 }
 
 function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list"), getDraggedIndex = () => null) {
@@ -244,19 +246,23 @@ function removePlayer(index) {
   render();
 }
 
+function appendVersionFooter(screen) {
+  screen.append(createElement("small", "app-version", "Bendito · versão 0.1.0"));
+}
+
 function renderReveal() {
   const screen = createElement("section", "screen centered");
   const player = state.players[state.revealIndex];
-  screen.append(createElement("span", "eyebrow", `Segredo ${state.revealIndex + 1} / ${state.players.length}`));
+  screen.append(createElement("span", "eyebrow", `Fica quieto ${state.revealIndex + 1} / ${state.players.length}`));
   screen.append(createElement("h1", "", player));
-  const instruction = createElement("p", "muted", state.revealShown ? "Memorize sua palavra e oculte a tela antes de passar o celular." : "Toque para revelar sua palavra.");
+  const instruction = createElement("p", "muted", state.revealShown ? "Memorize sua palavra e oculte a tela antes de passar o celular." : "");
   const card = createElement("button", "secret-card reveal-card", "");
   card.type = "button";
-  card.setAttribute("aria-label", state.revealShown ? "Sua palavra secreta" : "Toque para revelar sua palavra");
+  card.setAttribute("aria-label", state.revealShown ? "Sua palavra secreta" : "Dar um bisu");
   if (state.revealShown) card.append(createElement("strong", "secret", state.secrets[state.revealIndex].secret));
   else {
     card.append(createElement("span", "reveal-icon", "✦"));
-    card.append(createElement("span", "hint", "Toque para revelar"));
+    card.append(createElement("span", "hint", "Dar um bisu"));
   }
   screen.append(instruction, card);
 
@@ -269,13 +275,14 @@ function renderReveal() {
   });
 
   if (state.revealShown) {
-    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Começar discussão" : "Ocultar e passar", "button", () => {
+    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Começar discussão" : "Prende e passa", "button", () => {
       if (state.revealIndex === state.players.length - 1) updateState(startDiscussion(state));
       else updateState({ ...state, revealIndex: state.revealIndex + 1, revealShown: false });
     });
     screen.append(nextButton);
   }
   app.append(screen);
+  appendVersionFooter(screen);
 }
 
 async function requestWakeLock() {
@@ -306,6 +313,7 @@ function renderDiscussion() {
   screen.append(timer);
   screen.append(createButton("Partiu votação", "button", () => updateState(startVoting(state))));
   app.append(screen);
+  appendVersionFooter(screen);
   requestWakeLock();
   timerCleanup = startTimer(state.timerEndsAt, (remaining) => { timer.textContent = formatRemainingTime(remaining); }, () => updateState(startVoting(state)));
 }
@@ -314,10 +322,11 @@ function renderVoting() {
   const screen = createElement("section", "screen centered");
   const voter = state.players[state.votingIndex];
   if (!state.votingReady) {
-    screen.append(createElement("span", "eyebrow", `Próximo participante — ${state.votingIndex + 1} de ${state.players.length}`));
+    screen.append(createElement("span", "eyebrow", `Hora da verdade — ${state.votingIndex + 1} de ${state.players.length}`));
     screen.append(createElement("h1", "", voter));
     screen.append(createElement("p", "muted", "Passe o celular para esta pessoa.") , createButton("Votar", "button", () => updateState(beginVotingStep(state))));
     app.append(screen);
+    appendVersionFooter(screen);
     return;
   }
   const voterIsBendito = state.roles[state.votingIndex] === "bendito";
@@ -350,6 +359,7 @@ function renderVoting() {
     screen.append(createButton("Entendi, passar o celular", "button", () => submitVote(undefined)));
   }
   app.append(screen);
+  appendVersionFooter(screen);
 }
 
 function submitVote(targetIndex) {
@@ -387,6 +397,7 @@ function renderResults() {
   }));
   screen.append(actions);
   app.append(screen);
+  appendVersionFooter(screen);
 }
 
 function createResultsPanel(className, title, characterType, names) {

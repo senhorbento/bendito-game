@@ -385,7 +385,10 @@ When working on this project:
 11. Keep all created and modified project files inside `Bendito-Game/`.
 12. After every change, create a git commit and push it to the configured
     remote repository.
-13. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
+13. Keep the user-facing application version in the footer. Every commit
+    that changes the application must update the version according to the
+    project's commit history, using a consistent semantic version format.
+14. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
 
 ## 12. Product Owner Decisions
