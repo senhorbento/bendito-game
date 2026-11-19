@@ -275,7 +275,7 @@ function renderReveal() {
   });
 
   if (state.revealShown) {
-    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Começar discussão" : "Prende e passa", "button", () => {
+    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Hora da resenha" : "Prende e passa", "button", () => {
       if (state.revealIndex === state.players.length - 1) updateState(startDiscussion(state));
       else updateState({ ...state, revealIndex: state.revealIndex + 1, revealShown: false });
     });
