@@ -100,6 +100,15 @@ Bendito-Game/
 -   Keep all visual effects readable and practical on small screens.
 -   Do **not** include written labels such as "AI GENERATED" or equivalent
     claims in the interface.
+-   Character artwork must use original PNG sprites in a retro 8-bit style,
+    with pixel-art silhouettes, limited color palettes, readable poses, and
+    transparent backgrounds.
+-   Character sprites should include lightweight movement during result
+    presentation, such as idle bobbing, blinking, or small pose changes. Motion
+    must remain subtle, performant, and disabled or reduced for users who
+    prefer reduced motion.
+-   Character art must remain original and must not copy protected characters,
+    logos, sprites, or branded assets.
 
 ## 5. Game Flow and Screens
 
@@ -259,12 +268,14 @@ export const animals = [
 -   The results screen identifies every Bendito and every participant
     who voted correctly.
 -   The results screen uses a visual three-part composition: an original
-    malandro character in the center with the Bendito name below, an
-    original police character on the left with correct voters, and an
-    original otário character on the right with incorrect voters.
--   Results illustrations must be original CSS or SVG artwork and must not
-    copy protected characters, logos, or branded assets. The composition
-    must remain readable in portrait and landscape layouts.
+    retro 8-bit malandro sprite in the center with the Bendito name below, an
+    original police sprite on the left with correct voters, and an original
+    otário sprite on the right with incorrect voters.
+-   Results sprites must be original PNG pixel art with transparent
+    backgrounds, and the composition must remain readable in portrait and
+    landscape layouts.
+-   The result characters should have subtle idle movement while visible, with
+    reduced-motion support and no impact on result data or game rules.
 
 ## 8. Persistence and Recovery
 

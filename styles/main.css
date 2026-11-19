@@ -119,39 +119,17 @@ h2 { font-size: 1.5rem; }
 .results-malandro .results-character { transform: scale(1.18); margin-block: 12px 18px; }
 .results-role { color: var(--yellow); font-size: .78rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
 .results-bendito-name { max-width: 100%; color: var(--white); font-size: clamp(1.2rem, 4vw, 1.7rem); overflow-wrap: anywhere; }
-.results-character { position: relative; width: 112px; height: 142px; flex: 0 0 auto; filter: drop-shadow(0 14px 10px rgba(0, 0, 0, .35)); }
-.results-character span { position: absolute; display: block; }
-.character-head { z-index: 2; top: 31px; left: 36px; width: 40px; height: 43px; border: 3px solid var(--dark); border-radius: 46% 46% 44% 44%; background: #c87956; }
-.character-head::before, .character-head::after { content: ""; position: absolute; top: 17px; width: 5px; height: 5px; border-radius: 50%; background: var(--dark); }
-.character-head::before { left: 10px; }
-.character-head::after { right: 10px; }
-.character-body { z-index: 1; top: 70px; left: 24px; width: 64px; height: 62px; border: 3px solid var(--dark); border-radius: 24px 24px 15px 15px; background: var(--purple); }
-.character-body::after { content: ""; position: absolute; top: 10px; left: 50%; width: 4px; height: 43px; background: var(--white); transform: translateX(-50%); opacity: .8; }
-.character-arm { z-index: 0; top: 78px; width: 21px; height: 58px; border: 3px solid var(--dark); border-radius: 18px; background: var(--purple); }
-.character-arm-left { left: 10px; transform: rotate(20deg); }
-.character-arm-right { right: 10px; transform: rotate(-20deg); }
-.character-leg { z-index: 0; top: 120px; width: 22px; height: 22px; border: 3px solid var(--dark); border-radius: 8px; background: var(--dark); }
-.character-leg-left { left: 32px; transform: rotate(8deg); }
-.character-leg-right { right: 32px; transform: rotate(-8deg); }
-.character-hat { z-index: 3; top: 14px; left: 20px; width: 72px; height: 22px; border: 3px solid var(--dark); border-radius: 50% 50% 35% 35%; background: var(--yellow); transform: rotate(-5deg); }
-.character-hat::after { content: ""; position: absolute; top: -13px; left: 21px; width: 30px; height: 21px; border: 3px solid var(--dark); border-bottom: 0; border-radius: 18px 18px 0 0; background: var(--yellow); }
-.character-police .character-hat { background: var(--blue); }
-.character-police .character-hat::after { background: var(--blue); }
-.character-police .character-body { background: var(--blue); }
-.character-police .character-arm { background: var(--blue); }
-.character-police .character-head { background: #d99a70; }
-.character-otario .character-hat { background: var(--danger); transform: rotate(6deg); }
-.character-otario .character-hat::after { background: var(--danger); }
-.character-otario .character-body, .character-otario .character-arm { background: var(--orange); }
-.character-otario .character-head { background: #b56c50; }
-.character-malandro .character-body, .character-malandro .character-arm { background: var(--pink); }
-.character-malandro .character-body::before { content: ""; position: absolute; top: 0; left: 8px; width: 12px; height: 100%; background: var(--yellow); transform: skew(-12deg); }
+.results-character { width: 128px; height: 160px; flex: 0 0 auto; filter: drop-shadow(0 14px 10px rgba(0, 0, 0, .35)); }
+.results-character img { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; animation: sprite-idle 2.4s ease-in-out infinite; }
+.character-police img { animation-delay: -.8s; }
+.character-otario img { animation-delay: -1.5s; }
 .badge { padding: 6px 10px; border-radius: 999px; font-size: .76rem; font-weight: 800; white-space: nowrap; }
 .badge.good { color: var(--dark); background: var(--success); }
 .badge.bad { color: var(--white); background: var(--danger); }
 
 @keyframes screen-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes reveal-word { from { opacity: 0; transform: scale(.86) rotate(-3deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes sprite-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (max-width: 700px) {
   .results-stage { grid-template-columns: 1fr 1fr; align-items: start; }
   .results-malandro { grid-column: 1 / -1; grid-row: 1; }

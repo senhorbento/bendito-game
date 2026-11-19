@@ -355,13 +355,11 @@ function createResultsPanel(className, title, characterType, names) {
 function createCharacter(type) {
   const character = createElement("div", `results-character character-${type}`);
   character.setAttribute("aria-hidden", "true");
-  character.append(createElement("span", "character-hat"));
-  character.append(createElement("span", "character-head"));
-  character.append(createElement("span", "character-body"));
-  character.append(createElement("span", "character-arm character-arm-left"));
-  character.append(createElement("span", "character-arm character-arm-right"));
-  character.append(createElement("span", "character-leg character-leg-left"));
-  character.append(createElement("span", "character-leg character-leg-right"));
+  const sprite = document.createElement("img");
+  sprite.src = `./assets/sprites/${type}.png`;
+  sprite.alt = "";
+  sprite.draggable = false;
+  character.append(sprite);
   return character;
 }
 
