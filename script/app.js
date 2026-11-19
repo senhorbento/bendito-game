@@ -6,7 +6,7 @@ import {
   getRemainingTime,
   validateName
 } from "./game-rules.js";
-import { createHomeState, createRoundState, createSetupState, completeRound, startDiscussion, startVoting } from "./game-state.js";
+import { beginVotingStep, createHomeState, createRoundState, createSetupState, completeRound, startDiscussion, startVoting } from "./game-state.js";
 import { clearState, loadState, saveState } from "./persistence.js";
 import { formatRemainingTime, startTimer } from "./timer.js";
 
@@ -32,7 +32,9 @@ function isRecoverableState(candidate) {
     && candidate.secrets.length === candidate.players.length
     && candidate.pair
     && typeof candidate.pair.word === "string"
-    && typeof candidate.pair.clue === "string";
+    && typeof candidate.pair.clue === "string"
+    && (candidate.phase !== "discussion" || Number.isInteger(candidate.starterIndex))
+    && (candidate.phase !== "voting" || typeof candidate.votingReady === "boolean");
 }
 
 function updateState(nextState) {
@@ -217,15 +219,24 @@ function renderDiscussion() {
   const screen = createElement("section", "screen centered");
   screen.append(createElement("span", "eyebrow", "Hora da conversa"));
   screen.append(createElement("h1", "", "Descubram o Bendito"));
+  screen.append(createElement("p", "muted", `Começa falando: ${state.players[state.starterIndex]}`));
   const timer = createElement("strong", "timer", formatRemainingTime(getRemainingTime(state.timerEndsAt)));
-  screen.append(timer, createElement("p", "muted", "Conversem sobre as pistas. A votação começa quando o tempo acabar."));
+  screen.append(timer, createElement("p", "muted", "Conversem sobre as pistas."));
+  screen.append(createButton("Ir para votação", "button", () => updateState(startVoting(state))));
   app.append(screen);
   timerCleanup = startTimer(state.timerEndsAt, (remaining) => { timer.textContent = formatRemainingTime(remaining); }, () => updateState(startVoting(state)));
 }
 
 function renderVoting() {
-  const screen = createElement("section", "screen");
+  const screen = createElement("section", "screen centered");
   const voter = state.players[state.votingIndex];
+  if (!state.votingReady) {
+    screen.append(createElement("span", "eyebrow", `Próximo participante — ${state.votingIndex + 1} de ${state.players.length}`));
+    screen.append(createElement("h1", "", voter));
+    screen.append(createElement("p", "muted", "Passe o celular para esta pessoa.") , createButton("Votar", "button", () => updateState(beginVotingStep(state))));
+    app.append(screen);
+    return;
+  }
   const voterIsBendito = state.roles[state.votingIndex] === "bendito";
   screen.append(createElement("span", "eyebrow", `Votação ${state.votingIndex + 1} de ${state.players.length}`));
   screen.append(createElement("h1", "", `Vez de ${voter}`));
@@ -258,8 +269,8 @@ function submitVote(targetIndex) {
   const votes = [...state.votes];
   votes[state.votingIndex] = targetIndex;
   const nextIndex = state.votingIndex + 1;
-  if (nextIndex >= state.players.length) updateState(completeRound({ ...state, votes, results: evaluateVotes(votes, state.roles) }));
-  else updateState({ ...state, votes, votingIndex: nextIndex });
+  if (nextIndex >= state.players.length) updateState(completeRound({ ...state, votes, results: evaluateVotes(votes, state.roles), votingReady: false }));
+  else updateState({ ...state, votes, votingIndex: nextIndex, votingReady: false });
 }
 
 function renderResults() {

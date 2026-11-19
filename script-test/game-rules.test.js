@@ -6,6 +6,7 @@ import {
   getRemainingTime,
   validateName
 } from "../script/game-rules.js";
+import { beginVotingStep, createRoundState, startDiscussion, startVoting } from "../script/game-state.js";
 
 const tests = [
   ["rejects empty names", () => validateName("", []) !== ""],
@@ -15,7 +16,16 @@ const tests = [
   ["assigns the requested Benditos", () => createRoleAssignments(5, 2).filter((role) => role === "bendito").length === 2],
   ["blocks self voting", () => !canVote(0, 0, ["regular", "bendito"], [])],
   ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"])[0].correct],
-  ["calculates remaining time", () => getRemainingTime(1500, 1000) === 500]
+  ["calculates remaining time", () => getRemainingTime(1500, 1000) === 500],
+  ["selects a discussion starter", () => {
+    const round = createRoundState(["Ana", "Bia", "Caio"], 1);
+    return startDiscussion(round, 1000, () => 0.99).starterIndex === 2;
+  }],
+  ["keeps voting behind a neutral step", () => {
+    const round = createRoundState(["Ana", "Bia", "Caio"], 1);
+    const voting = startVoting(round);
+    return voting.votingReady === false && beginVotingStep(voting).votingReady === true;
+  }]
 ];
 
 const output = document.querySelector("#test-output");

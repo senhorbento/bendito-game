@@ -137,9 +137,12 @@ Implement the following screen sequence.
 
 -   Start a 2-minute countdown only after all participants have viewed
     their secrets.
+-   Before the countdown begins, randomly select one participant to start
+    speaking and display that participant's name above the timer.
 -   Display the remaining time clearly.
--   When the timer reaches zero, automatically move to the voting
-    screen.
+-   Provide an action to move to the voting screen before the 2 minutes
+    expire, in addition to automatically moving there when the timer reaches
+    zero.
 -   Avoid relying only on a running in-memory interval for timer
     correctness. Store enough timing information to restore the correct
     remaining time after a refresh.
@@ -148,7 +151,12 @@ Implement the following screen sequence.
 
 -   Voting takes place on the same device, which is passed from
     participant to participant.
--   Each participant gets a private voting step.
+-   Before each participant's voting step, display a neutral transition
+    screen with that participant's name and a button to begin voting. This
+    prevents the participant's role from being inferred while the device is
+    passed between players.
+-   Each participant gets a private voting step after pressing the voting
+    button.
 -   A participant must not be able to vote for themselves.
 -   Votes must remain secret. Do not display vote counts, previous
     selections, or voting results before the final results screen.
@@ -184,8 +192,9 @@ Implement the following screen sequence.
 -   Store all word and clue data locally in JavaScript.
 -   Organize the bank into separate JavaScript files by category under
     `script/categories/`.
--   Each entry must associate one main word with a clue that gives
-    context about the main word without directly revealing it.
+-   Each entry must associate one main word with a clue consisting of
+    exactly one related word, without being identical to or an obvious
+    spelling variation of the main word.
 -   Keep the data structure consistent across categories.
 -   Select a valid word/clue pair for each round.
 -   Avoid selecting a clue that is identical to, or an obvious spelling
@@ -200,7 +209,7 @@ Example data shape (the exact implementation may be adapted):
 export const animals = [
   {
     word: "Girafa",
-    clue: "Animal conhecido pelo pescoço comprido"
+    clue: "Savanna"
   }
 ];
 ```
@@ -342,6 +351,9 @@ The following decisions are explicit requirements:
 -   Voting is performed by passing one device between participants.
 -   Benditos do not vote, but their voting step is still displayed with
     an instruction that they do not need to vote.
+-   Before each voting step, show only the participant's name and a neutral
+    button to begin voting; do not reveal whether that participant is a
+    Bendito on this transition screen.
 -   Participants cannot vote for themselves.
 -   Each regular participant casts one vote for one participant, and a vote
     is correct when its target is any Bendito.

@@ -27,19 +27,26 @@ export function createRoundState(players, benditoCount, previousWord = "") {
     revealIndex: 0,
     revealShown: false,
     timerEndsAt: null,
+    starterIndex: null,
     votingIndex: 0,
+    votingReady: false,
     votes: [],
     previousWord,
     results: null
   };
 }
 
-export function startDiscussion(state, now = Date.now()) {
-  return { ...state, phase: "discussion", timerEndsAt: now + DISCUSSION_DURATION_MS };
+export function startDiscussion(state, now = Date.now(), random = Math.random) {
+  const starterIndex = Math.floor(random() * state.players.length);
+  return { ...state, phase: "discussion", timerEndsAt: now + DISCUSSION_DURATION_MS, starterIndex };
 }
 
 export function startVoting(state) {
-  return { ...state, phase: "voting", votingIndex: 0 };
+  return { ...state, phase: "voting", votingIndex: 0, votingReady: false };
+}
+
+export function beginVotingStep(state) {
+  return { ...state, votingReady: true };
 }
 
 export function completeRound(state) {
