@@ -1,0 +1,22 @@
+export const food = [
+  { word: "Pizza", clue: "Massa assada geralmente coberta com molho e queijo" },
+  { word: "Sushi", clue: "Preparação japonesa frequentemente feita com arroz e peixe" },
+  { word: "Feijoada", clue: "Prato brasileiro encorpado servido tradicionalmente com arroz" },
+  { word: "Brigadeiro", clue: "Doce brasileiro enrolado feito com chocolate e leite condensado" },
+  { word: "Coxinha", clue: "Salgado frito com massa envolvendo recheio desfiado" },
+  { word: "Pamonha", clue: "Preparação feita com milho ralado e cozida em palha" },
+  { word: "Tapioca", clue: "Alimento preparado na frigideira a partir de fécula" },
+  { word: "Lasanha", clue: "Prato em camadas alternadas de massa, molho e recheio" },
+  { word: "Hambúrguer", clue: "Sanduíche com um disco de carne dentro de um pão" },
+  { word: "Acarajé", clue: "Bolinho baiano frito em azeite e normalmente recheado" },
+  { word: "Churrasco", clue: "Refeição preparada com carnes assadas sobre calor" },
+  { word: "Pudim", clue: "Sobremesa cremosa geralmente servida com calda caramelizada" },
+  { word: "Moqueca", clue: "Ensopado brasileiro de peixe ou frutos do mar" },
+  { word: "Pastel", clue: "Massa fina recheada e frita, comum em feiras" },
+  { word: "Cuscuz", clue: "Preparação de grãos cozidos que pode ser doce ou salgada" },
+  { word: "Risoto", clue: "Prato italiano cremoso feito com arroz cozido lentamente" },
+  { word: "Panqueca", clue: "Massa fina preparada na frigideira e dobrada com recheio" },
+  { word: "Mousse", clue: "Sobremesa aerada de textura leve e cremosa" },
+  { word: "Empada", clue: "Torta pequena de massa assada com recheio" },
+  { word: "Açaí", clue: "Fruto amazônico servido congelado em creme roxo" }
+];
