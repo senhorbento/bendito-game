@@ -122,27 +122,17 @@ function renderSetup() {
     setupPlayers = [...setupPlayers, input.value.trim().replace(/\s+/g, " ")];
     state = createSetupState(setupPlayers);
     saveState(state);
-    render();
+    appendSetupPlayer(screen, setupPlayers.length - 1);
+    input.value = "";
+    input.focus();
+    refreshSetupControls(screen);
   });
   screen.append(addForm, error);
 
   const list = createElement("div", "player-list");
+  list.id = "setup-player-list";
   let draggedIndex = null;
-  setupPlayers.forEach((player, index) => {
-    const item = createElement("div", "player-item");
-    item.draggable = true;
-    item.dataset.index = index;
-    item.append(createElement("span", "drag-handle", `☷ ${player}`));
-    item.append(createButton("×", "icon-button", () => removePlayer(index), false));
-    item.addEventListener("dragstart", () => { draggedIndex = index; item.classList.add("dragging"); });
-    item.addEventListener("dragend", () => { draggedIndex = null; item.classList.remove("dragging"); });
-    item.addEventListener("dragover", (event) => event.preventDefault());
-    item.addEventListener("drop", (event) => {
-      event.preventDefault();
-      if (draggedIndex !== null && draggedIndex !== index) reorderPlayer(draggedIndex, index);
-    });
-    list.append(item);
-  });
+  setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list, () => draggedIndex));
   screen.append(list);
 
   const countField = createElement("div", "field");
@@ -151,6 +141,7 @@ function renderSetup() {
   const bounds = getBenditoBounds(setupPlayers.length);
   const currentCount = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
   const countValue = createElement("output", "count-value", bounds.max > 0 ? String(currentCount) : "—");
+  countValue.id = "setup-count-value";
   countValue.setAttribute("aria-live", "polite");
   const decrementButton = createButton("−", "icon-button", () => updateBenditoCount(currentCount - 1), bounds.max === 0 || currentCount <= bounds.min);
   decrementButton.setAttribute("aria-label", "Diminuir quantidade de Benditos");
@@ -186,9 +177,38 @@ function renderSetup() {
     const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random");
     updateState(nextState);
   }, setupPlayers.length < 3);
+  startButton.id = "setup-start-button";
   actions.append(startButton);
   screen.append(actions);
   app.replaceChildren(screen);
+}
+
+function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list"), getDraggedIndex = () => null) {
+  const player = setupPlayers[index];
+  const item = createElement("div", "player-item");
+  item.draggable = true;
+  item.dataset.index = index;
+  item.append(createElement("span", "drag-handle", `☷ ${player}`));
+  item.append(createButton("×", "icon-button", () => removePlayer(index), false));
+  item.addEventListener("dragstart", () => { item.classList.add("dragging"); });
+  item.addEventListener("dragend", () => { item.classList.remove("dragging"); });
+  item.addEventListener("dragover", (event) => event.preventDefault());
+  item.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const draggedItem = list.querySelector(".dragging");
+    const draggedIndex = draggedItem ? Number(draggedItem.dataset.index) : getDraggedIndex();
+    if (Number.isInteger(draggedIndex) && draggedIndex !== index) reorderPlayer(draggedIndex, index);
+  });
+  list.append(item);
+}
+
+function refreshSetupControls(screen) {
+  const bounds = getBenditoBounds(setupPlayers.length);
+  const count = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
+  const countValue = screen.querySelector("#setup-count-value");
+  const startButton = screen.querySelector("#setup-start-button");
+  if (countValue) countValue.textContent = bounds.max > 0 ? String(count) : "—";
+  if (startButton) startButton.disabled = setupPlayers.length < 3;
 }
 
 function reorderPlayer(from, to) {
