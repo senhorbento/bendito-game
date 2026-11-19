@@ -174,6 +174,9 @@ Implement the following screen sequence.
 -   Avoid relying only on a running in-memory interval for timer
     correctness. Store enough timing information to restore the correct
     remaining time after a refresh.
+-   While the discussion timer is active, request the browser Screen Wake
+    Lock API when available so the device screen remains awake. Release the
+    lock when discussion ends and safely continue without it when unsupported.
 
 ### Screen 5: Voting
 

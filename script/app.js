@@ -14,12 +14,17 @@ import { formatRemainingTime, startTimer } from "./timer.js";
 const app = document.querySelector("#app");
 let state = loadState();
 let timerCleanup = null;
+let wakeLock = null;
 let setupPlayers = Array.isArray(state?.players) ? [...state.players] : [];
 
 if (!isRecoverableState(state)) {
   state = createHomeState(setupPlayers);
 }
 render();
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && state.phase === "discussion") requestWakeLock();
+});
 
 function isRecoverableState(candidate) {
   if (!candidate || typeof candidate !== "object") return false;
@@ -65,6 +70,7 @@ function render() {
     timerCleanup();
     timerCleanup = null;
   }
+  if (state.phase !== "discussion") releaseWakeLock();
   app.replaceChildren();
   if (state.phase === "home") renderHomeScreen();
   else if (state.phase === "setup") renderSetup();
@@ -272,6 +278,22 @@ function renderReveal() {
   app.append(screen);
 }
 
+async function requestWakeLock() {
+  if (!("wakeLock" in navigator) || wakeLock) return;
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; });
+  } catch {
+    wakeLock = null;
+  }
+}
+
+function releaseWakeLock() {
+  if (!wakeLock) return;
+  wakeLock.release();
+  wakeLock = null;
+}
+
 function renderDiscussion() {
   const screen = createElement("section", "screen centered");
   screen.append(createElement("h1", "", "Solta a conversa"));
@@ -284,6 +306,7 @@ function renderDiscussion() {
   screen.append(timer);
   screen.append(createButton("Partiu votação", "button", () => updateState(startVoting(state))));
   app.append(screen);
+  requestWakeLock();
   timerCleanup = startTimer(state.timerEndsAt, (remaining) => { timer.textContent = formatRemainingTime(remaining); }, () => updateState(startVoting(state)));
 }
 
