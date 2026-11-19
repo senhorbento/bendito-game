@@ -362,7 +362,9 @@ When working on this project:
     and reduced-motion behavior.
 10. For every bug fix, add a regression test.
 11. Keep all created and modified project files inside `Bendito-Game/`.
-12. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
+12. After every change, create a git commit and push it to the configured
+    remote repository.
+13. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
 
 ## 12. Product Owner Decisions

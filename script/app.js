@@ -81,6 +81,7 @@ function renderHomeScreen() {
   logo.src = "./assets/bendito-logo.png";
   logo.alt = "Bendito";
   screen.append(logo);
+  screen.append(createElement("p", "home-how-to-play", "A galera recebe uma palavra secreta.\nO Bendito recebe só uma pista.\nTroca ideia, vota e vê quem tava no sapatinho."));
   screen.append(createButton("Jogar", "button", () => {
     state = createSetupState(setupPlayers);
     saveState(state);
@@ -248,12 +249,15 @@ function renderReveal() {
 
 function renderDiscussion() {
   const screen = createElement("section", "screen centered");
-  screen.append(createElement("span", "eyebrow", "Clima da rodada"));
   screen.append(createElement("h1", "", "Solta a conversa"));
-  screen.append(createElement("p", "muted", `Começa falando: ${state.players[state.starterIndex]}`));
+  screen.append(createElement("span", "eyebrow", `Clima da rodada: ${state.categoryLabel}`));
+  const starter = createElement("p", "discussion-starter", "Começa falando: ");
+  starter.append(createElement("strong", "", state.players[state.starterIndex]));
+  screen.append(starter);
+  screen.append(createElement("p", "muted", "Fale sobre sua palavra, mas sem entregar o ouro."));
   const timer = createElement("strong", "timer", formatRemainingTime(getRemainingTime(state.timerEndsAt)));
-  screen.append(timer, createElement("p", "muted", "Conversem sobre as pistas."));
-  screen.append(createButton("Ir para votação", "button", () => updateState(startVoting(state))));
+  screen.append(timer);
+  screen.append(createButton("Partiu votação", "button", () => updateState(startVoting(state))));
   app.append(screen);
   timerCleanup = startTimer(state.timerEndsAt, (remaining) => { timer.textContent = formatRemainingTime(remaining); }, () => updateState(startVoting(state)));
 }
@@ -280,8 +284,12 @@ function renderVoting() {
       if (index === state.votingIndex) return;
       const option = createButton(player, "vote-option", () => {
         selectedTarget = index;
-        [...voteList.children].forEach((child) => child.classList.remove("selected"));
+        [...voteList.children].forEach((child) => {
+          child.classList.remove("selected");
+          child.blur();
+        });
         option.classList.add("selected");
+        option.focus();
       });
       voteList.append(option);
     });
