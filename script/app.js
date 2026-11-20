@@ -160,8 +160,7 @@ function renderSetup() {
 
   const list = createElement("div", "player-list");
   list.id = "setup-player-list";
-  let draggedIndex = null;
-  setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list, (value) => { draggedIndex = value; }, () => draggedIndex));
+  setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list));
   screen.append(list);
 
   const nextButton = createButton("Bora organizar", "button", () => renderRoundSetup(), setupPlayers.length < 3);
@@ -253,7 +252,7 @@ function renderRoundSetup() {
   appendVersionFooter(screen);
 }
 
-function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list"), setDraggedIndex = () => {}, getDraggedIndex = () => null) {
+function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list")) {
   const player = setupPlayers[index];
   const item = createElement("article", "player-item setup-player-card");
   item.draggable = true;
@@ -262,22 +261,24 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   identity.append(createElement("span", "setup-player-number", String(index + 1).padStart(2, "0")));
   identity.append(createElement("span", "drag-handle", player));
   item.append(identity);
-  item.append(createButton("×", "icon-button", () => removePlayer(index), false));
+  const removeButton = createButton("▣", "icon-button trash-button", () => removePlayer(index), false);
+  removeButton.setAttribute("aria-label", `Remover ${player}`);
+  removeButton.title = "Remover participante";
+  item.append(removeButton);
   item.addEventListener("dragstart", (event) => {
-    setDraggedIndex(index);
     item.classList.add("dragging");
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("text/plain", String(index));
   });
-  item.addEventListener("dragend", () => {
-    setDraggedIndex(null);
-    item.classList.remove("dragging");
+  item.addEventListener("dragend", () => item.classList.remove("dragging"));
+  item.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
   });
-  item.addEventListener("dragover", (event) => event.preventDefault());
   item.addEventListener("drop", (event) => {
     event.preventDefault();
     const draggedItem = list.querySelector(".dragging");
-    const draggedIndex = draggedItem ? Number(draggedItem.dataset.index) : getDraggedIndex();
+    const draggedIndex = draggedItem ? Number(draggedItem.dataset.index) : Number(event.dataTransfer.getData("text/plain"));
     if (Number.isInteger(draggedIndex) && draggedIndex !== index) reorderPlayer(draggedIndex, index);
   });
   list.append(item);

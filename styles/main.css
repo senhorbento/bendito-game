@@ -97,6 +97,9 @@ h2 { font-size: 1.5rem; }
 .setup-player-number { display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; border-radius: 50%; color: var(--dark); background: var(--yellow); font-size: .72rem; font-weight: 900; }
 .drag-handle { cursor: grab; font-weight: 800; }
 .setup-player-card .icon-button { color: var(--yellow); border-color: rgba(249, 214, 92, .28); }
+.setup-player-card { cursor: grab; touch-action: none; user-select: none; }
+.setup-player-card:active { cursor: grabbing; }
+.trash-button { color: var(--danger) !important; border-color: rgba(255, 107, 125, .35) !important; font-size: 1.15rem; }
 .setup-players-screen, .setup-options-screen { gap: 14px; }
 .setup-options-screen .actions { margin-top: auto; }
 .setup-options-screen .number-control { align-self: flex-start; }
