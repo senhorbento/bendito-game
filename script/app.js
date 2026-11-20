@@ -273,10 +273,12 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   let draggedIndex = null;
   let hasMoved = false;
   let ghost = null;
+  let originalPlayerOrder = null;
   item.addEventListener("pointerdown", (event) => {
     if (event.button !== 0 || event.target.closest("button")) return;
     pointerId = event.pointerId;
     draggedIndex = index;
+    originalPlayerOrder = [...setupPlayers];
     hasMoved = false;
     item.setPointerCapture(pointerId);
   });
@@ -290,34 +292,35 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
       list.insertBefore(ghost, item);
     }
     ghost.style.transform = `translateY(${event.clientY - item.getBoundingClientRect().top}px)`;
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".setup-player-card");
-    if (!target || target === item) return;
-    const targetIndex = Number(target.dataset.index);
-    if (!Number.isInteger(targetIndex) || targetIndex === draggedIndex) return;
+    const target = [...list.querySelectorAll(".setup-player-card:not(.dragging)")]
+      .find((card) => {
+        const rect = card.getBoundingClientRect();
+        return event.clientY >= rect.top && event.clientY <= rect.bottom;
+      });
+    if (!target) return;
     const targetRect = target.getBoundingClientRect();
     const insertBefore = event.clientY < targetRect.top + targetRect.height / 2;
     list.insertBefore(ghost, insertBefore ? target : target.nextSibling);
     const visualItems = [...list.querySelectorAll(".setup-player-card")];
     const nextIndex = visualItems.indexOf(item);
-    if (nextIndex !== -1) {
-      const nextPlayers = [...setupPlayers];
-      const [movedPlayer] = nextPlayers.splice(draggedIndex, 1);
-      nextPlayers.splice(nextIndex, 0, movedPlayer);
-      setupPlayers = nextPlayers;
-      draggedIndex = nextIndex;
-      updateSetupList(list);
-    }
+    if (nextIndex === -1 || nextIndex === draggedIndex) return;
+    const [movedPlayer] = setupPlayers.splice(draggedIndex, 1);
+    setupPlayers.splice(nextIndex, 0, movedPlayer);
+    draggedIndex = nextIndex;
+    updateSetupList(list);
   });
   const finishPointerDrag = (event) => {
     if (event.pointerId !== pointerId) return;
     item.classList.remove("dragging");
     ghost?.remove();
     ghost = null;
+    if (!hasMoved && originalPlayerOrder) setupPlayers = originalPlayerOrder;
     state = createCurrentSetupState(setupPlayers);
     saveState(state);
     if (item.hasPointerCapture(pointerId)) item.releasePointerCapture(pointerId);
     pointerId = null;
     draggedIndex = null;
+    originalPlayerOrder = null;
   };
   item.addEventListener("pointerup", finishPointerDrag);
   item.addEventListener("pointercancel", finishPointerDrag);

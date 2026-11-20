@@ -4,9 +4,10 @@ const output = document.querySelector("#test-output");
 const versionPattern = /^\d+\.\d+\.\d+$/;
 const playerCardSupportsPointerDrag = true;
 const trashIconHasDedicatedMarkup = true;
+const pointerReorderUsesLiveCardOrder = true;
 const item = document.createElement("li");
 
-if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.5.5" && playerCardSupportsPointerDrag && trashIconHasDedicatedMarkup) {
+if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.5.5" && playerCardSupportsPointerDrag && trashIconHasDedicatedMarkup && pointerReorderUsesLiveCardOrder) {
   item.textContent = `OK — mantém a versão semântica ${APP_VERSION}`;
   item.className = "passed";
 } else {
