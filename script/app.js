@@ -294,7 +294,7 @@ function removePlayer(index) {
 }
 
 function appendVersionFooter(screen) {
-  screen.append(createElement("small", "app-version", "BENDITO · versão 1.1"));
+  screen.append(createElement("small", "app-version", "BENDITO · versão 1.2"));
 }
 
 function renderReveal() {
@@ -448,7 +448,6 @@ function renderResults() {
   sidePanels.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
   sidePanels.append(createResultsPanel("results-incorrect", "Deu mole", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
   screen.append(sidePanels);
-  screen.append(stage);
 
   const actions = createElement("div", "actions");
   actions.append(createButton("Vamo de novo", "button", () => {
