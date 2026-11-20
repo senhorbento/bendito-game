@@ -6,7 +6,7 @@ const playerCardSupportsPointerDrag = true;
 const trashIconHasDedicatedMarkup = true;
 const item = document.createElement("li");
 
-if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.5.4" && playerCardSupportsPointerDrag && trashIconHasDedicatedMarkup) {
+if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.5.5" && playerCardSupportsPointerDrag && trashIconHasDedicatedMarkup) {
   item.textContent = `OK — mantém a versão semântica ${APP_VERSION}`;
   item.className = "passed";
 } else {
