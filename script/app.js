@@ -12,6 +12,11 @@ import { beginVotingStep, createHomeState, createRoundState, createSetupState, c
 import { clearState, loadState, saveState } from "./persistence.js";
 import { formatRemainingTime, startTimer } from "./timer.js";
 import { APP_VERSION } from "./version.js";
+import { renderHomeScreen as renderHomeScreenModule } from "./screens/home-screen.js";
+import { renderRevealScreen } from "./screens/reveal-screen.js";
+import { renderDiscussionScreen } from "./screens/discussion-screen.js";
+import { renderResultsScreen } from "./screens/results-screen.js";
+import { appendVersionFooter as appendScreenVersionFooter, createElement as createScreenElement } from "./screens/screen-helpers.js";
 
 const app = document.querySelector("#app");
 let state = loadState();
@@ -103,25 +108,15 @@ function appendHomeButton() {
 }
 
 function renderHomeScreen() {
-  const screen = createElement("section", "screen centered home-screen");
-  const logo = document.createElement("img");
-  logo.className = "brand-art";
-  logo.src = "./assets/bendito-logo.png";
-  logo.alt = "BENDITO";
-  screen.append(logo);
-  const characterBanner = document.createElement("img");
-  characterBanner.className = "home-character-banner";
-  characterBanner.src = "./assets/sprites/banner.png";
-  characterBanner.alt = "Policial, BENDITO e participante confuso em pixel art";
-  screen.append(characterBanner);
-  screen.append(createElement("p", "home-how-to-play", "A galera recebe uma palavra secreta.\nO BENDITO recebe só uma pista.\nTroca ideia, vota e vê quem tava no sapatinho."));
-  screen.append(createButton("Jogar", "button", () => {
-    state = createSetupState(setupPlayers);
-    saveState(state);
-    render();
-  }));
-  app.append(screen);
-  appendVersionFooter(screen);
+  renderHomeScreenModule({
+    app,
+    version: APP_VERSION,
+    onStart: () => {
+      state = createSetupState(setupPlayers);
+      saveState(state);
+      render();
+    }
+  });
 }
 
 function renderSetup() {
@@ -388,38 +383,18 @@ function appendVersionFooter(screen) {
 }
 
 function renderReveal() {
-  const screen = createElement("section", "screen centered");
-  const player = state.players[state.revealIndex];
-  screen.append(createElement("span", "eyebrow", `Fica quieto ${state.revealIndex + 1} / ${state.players.length}`));
-  screen.append(createElement("h1", "", player));
-  const instruction = createElement("p", "muted", state.revealShown ? "Memorize sua palavra e oculte a tela antes de passar o celular." : "");
-  const card = createElement("button", "secret-card reveal-card", "");
-  card.type = "button";
-  card.setAttribute("aria-label", state.revealShown ? "Sua palavra secreta" : "Dar um bisu");
-  if (state.revealShown) card.append(createElement("strong", "secret", state.secrets[state.revealIndex].secret));
-  else {
-    card.append(createElement("span", "reveal-icon", "✦"));
-    card.append(createElement("span", "hint", "Dar um bisu"));
-  }
-  screen.append(instruction, card);
-
-  const reveal = () => {
-    if (!state.revealShown) updateState({ ...state, revealShown: true });
-  };
-  card.addEventListener("click", reveal);
-  card.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") reveal();
-  });
-
-  if (state.revealShown) {
-    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Hora da resenha" : "Peguei a visão", "button", () => {
+  renderRevealScreen({
+    app,
+    state,
+    version: APP_VERSION,
+    onReveal: () => {
+      if (!state.revealShown) updateState({ ...state, revealShown: true });
+    },
+    onNext: () => {
       if (state.revealIndex === state.players.length - 1) updateState(startDiscussion(state));
       else updateState({ ...state, revealIndex: state.revealIndex + 1, revealShown: false });
-    });
-    screen.append(nextButton);
-  }
-  app.append(screen);
-  appendVersionFooter(screen);
+    }
+  });
 }
 
 async function requestWakeLock() {
@@ -439,21 +414,21 @@ function releaseWakeLock() {
 }
 
 function renderDiscussion() {
-  const screen = createElement("section", "screen centered");
-  screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${allPairs.length} palavras usadas`));
-  screen.append(createElement("h1", "", "Solta a conversa"));
-  screen.append(createElement("span", "eyebrow", `Clima da rodada: ${state.categoryLabel}`));
-  const starter = createElement("p", "discussion-starter", "Começa falando: ");
-  starter.append(createElement("strong", "", state.players[state.starterIndex]));
-  screen.append(starter);
-  screen.append(createElement("p", "muted", "Fale sobre sua palavra, mas sem entregar o ouro."));
-  const timer = createElement("strong", "timer", formatRemainingTime(getRemainingTime(state.timerEndsAt)));
-  screen.append(timer);
-  screen.append(createButton("Partiu votação", "button", () => updateState(startVoting(state))));
-  app.append(screen);
-  appendVersionFooter(screen);
-  requestWakeLock();
-  timerCleanup = startTimer(state.timerEndsAt, (remaining) => { timer.textContent = formatRemainingTime(remaining); }, () => updateState(startVoting(state)));
+  renderDiscussionScreen({
+    app,
+    state,
+    version: APP_VERSION,
+    allPairsCount: allPairs.length,
+    remainingTime: () => formatRemainingTime(getRemainingTime(state.timerEndsAt)),
+    onVote: () => updateState(startVoting(state)),
+    requestWakeLock,
+    onTimerUpdate: (timer, onTimerEnd) => {
+      timerCleanup = startTimer(state.timerEndsAt, (remaining) => {
+        timer.textContent = formatRemainingTime(remaining);
+      }, onTimerEnd);
+    },
+    onTimerEnd: () => updateState(startVoting(state))
+  });
 }
 
 function renderVoting() {
@@ -521,72 +496,25 @@ function submitVote(targetIndex, wordAttempt) {
 }
 
 function renderResults() {
-  const screen = createElement("section", "screen results-screen");
-  const results = (state.results || []).filter((result) => result.targetIndex !== undefined);
-  const correctResults = results.filter((result) => result.correct);
-  const incorrectResults = results.filter((result) => !result.correct);
-  const malandroNames = (state.results || []).filter((result) => result.malandro).map((result) => state.players[result.voterIndex]);
   const wordPool = state.categoryKey === "random" ? allPairs : getWordPool(state.categoryKey || "random");
-  const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
-
-  screen.append(createElement("span", "eyebrow", "Revelação final"));
-  screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${wordPool.length} palavras usadas`));
-  screen.append(createElement("h1", "", "Quem era o BENDITO?"));
-
-  const center = createMalandroFigure(benditoNames, malandroNames);
-  screen.append(center);
-  const sidePanels = createElement("div", "results-side-panels");
-  sidePanels.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
-  sidePanels.append(createResultsPanel("results-incorrect", "Deu mole", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
-  screen.append(sidePanels);
-
-  const actions = createElement("div", "actions");
-  actions.append(createButton("Vamo de novo", "button", () => {
-    const nextState = createRoundState(state.players, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, state.lastStarterIndex);
-    sessionUsedWords = [...nextState.usedWords];
-    updateState(nextState);
-  }));
-  actions.append(createButton("Chegou mais gente", "button secondary", () => {
-    setupPlayers = [...state.players];
-    sessionUsedWords = [];
-    sessionLastStarterIndex = null;
-    clearState();
-    state = createSetupState(setupPlayers);
-    saveState(state);
-    render();
-  }));
-  screen.append(actions);
-  app.append(screen);
-  appendVersionFooter(screen);
-}
-
-function createResultsPanel(className, title, characterType, names) {
-  const panel = createElement("section", `results-side-panel ${className}`);
-  panel.append(createCharacter(characterType));
-  panel.append(createElement("h2", "results-panel-title", title));
-  const list = createElement("div", "results-names");
-  if (names.length === 0) list.append(createElement("span", "results-empty", "Ninguém desta vez"));
-  names.forEach((name) => list.append(createElement("span", "result-name", name)));
-  panel.append(list);
-  return panel;
-}
-
-function createCharacter(type) {
-  const character = createElement("div", `results-character character-${type}`);
-  character.setAttribute("aria-hidden", "true");
-  const sprite = document.createElement("img");
-  sprite.src = `./assets/sprites/${type}.png`;
-  sprite.alt = "";
-  sprite.draggable = false;
-  character.append(sprite);
-  return character;
-}
-
-function createMalandroFigure(names, malandroNames) {
-  const figure = createElement("section", "results-malandro");
-  figure.append(createCharacter("malandro"));
-  figure.append(createElement("span", "results-role", "BENDITO"));
-  figure.append(createElement("strong", "results-bendito-name", names.join(" + ")));
-  if (malandroNames.length) figure.append(createElement("span", "result-highlight result-highlight-saved", "BENDITO MALANDRO DEMAIS, SE SALVOU"));
-  return figure;
+  renderResultsScreen({
+    app,
+    state,
+    version: APP_VERSION,
+    wordPoolLength: wordPool.length,
+    onReplay: () => {
+      const nextState = createRoundState(state.players, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, state.lastStarterIndex);
+      sessionUsedWords = [...nextState.usedWords];
+      updateState(nextState);
+    },
+    onPlayers: () => {
+      setupPlayers = [...state.players];
+      sessionUsedWords = [];
+      sessionLastStarterIndex = null;
+      clearState();
+      state = createSetupState(setupPlayers);
+      saveState(state);
+      render();
+    }
+  });
 }
