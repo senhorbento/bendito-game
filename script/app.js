@@ -219,7 +219,11 @@ function renderSetup() {
   });
   categoryField.append(categoryLabel, categorySelect);
   const wordPool = getWordPool(categorySelect.value);
-  screen.append(categoryField, createElement("p", "word-counter", `${sessionUsedWords.length} / ${wordPool.length} palavras usadas`));
+  const wordCounter = createElement("p", "word-counter", `${sessionUsedWords.length} / ${wordPool.length} palavras usadas`);
+  categorySelect.addEventListener("change", () => {
+    wordCounter.textContent = `${sessionUsedWords.length} / ${getWordPool(categorySelect.value).length} palavras usadas`;
+  });
+  screen.append(categoryField, wordCounter);
 
   const actions = createElement("div", "actions");
   const startButton = createButton("Vamo lá", "button", () => {
@@ -318,7 +322,7 @@ function renderReveal() {
   });
 
   if (state.revealShown) {
-    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Hora da resenha" : "Prende e passa", "button", () => {
+    const nextButton = createButton(state.revealIndex === state.players.length - 1 ? "Hora da resenha" : "Peguei a visão", "button", () => {
       if (state.revealIndex === state.players.length - 1) updateState(startDiscussion(state));
       else updateState({ ...state, revealIndex: state.revealIndex + 1, revealShown: false });
     });
@@ -346,7 +350,7 @@ function releaseWakeLock() {
 
 function renderDiscussion() {
   const screen = createElement("section", "screen centered");
-  screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${getWordPool(state.categoryKey || "random").length} palavras usadas`));
+  screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${allPairs.length} palavras usadas`));
   screen.append(createElement("h1", "", "Solta a conversa"));
   screen.append(createElement("span", "eyebrow", `Clima da rodada: ${state.categoryLabel}`));
   const starter = createElement("p", "discussion-starter", "Começa falando: ");
@@ -431,17 +435,19 @@ function renderResults() {
   const correctResults = results.filter((result) => result.correct);
   const incorrectResults = results.filter((result) => !result.correct);
   const malandroNames = (state.results || []).filter((result) => result.malandro).map((result) => state.players[result.voterIndex]);
-  const wordPool = getWordPool(state.categoryKey || "random");
+  const wordPool = state.categoryKey === "random" ? allPairs : getWordPool(state.categoryKey || "random");
   const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
 
   screen.append(createElement("span", "eyebrow", "Revelação final"));
   screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${wordPool.length} palavras usadas`));
   screen.append(createElement("h1", "", "Quem era o BENDITO?"));
 
-  const stage = createElement("div", "results-stage");
-  stage.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
-  stage.append(createMalandroFigure(benditoNames, malandroNames));
-  stage.append(createResultsPanel("results-incorrect", "Deu mole", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
+  const center = createMalandroFigure(benditoNames, malandroNames);
+  screen.append(center);
+  const sidePanels = createElement("div", "results-side-panels");
+  sidePanels.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
+  sidePanels.append(createResultsPanel("results-incorrect", "Deu mole", "otario", incorrectResults.map((result) => state.players[result.voterIndex])));
+  screen.append(sidePanels);
   screen.append(stage);
 
   const actions = createElement("div", "actions");
