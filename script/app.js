@@ -256,6 +256,7 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   const player = setupPlayers[index];
   const item = createElement("article", "player-item setup-player-card");
   item.dataset.index = index;
+  item.dataset.playerIndex = index;
   const identity = createElement("span", "setup-player-identity");
   identity.append(createElement("span", "setup-player-number", String(index + 1).padStart(2, "0")));
   identity.append(createElement("span", "drag-handle", player));
@@ -270,6 +271,7 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   let pointerId = null;
   let draggedIndex = null;
   let hasMoved = false;
+  let ghost = null;
   item.addEventListener("pointerdown", (event) => {
     if (event.button !== 0 || event.target.closest("button")) return;
     pointerId = event.pointerId;
@@ -282,16 +284,36 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
     if (!hasMoved && Math.abs(event.movementX) + Math.abs(event.movementY) < 4) return;
     hasMoved = true;
     item.classList.add("dragging");
+    if (!ghost) {
+      ghost = createElement("div", "player-drag-ghost", player);
+      list.insertBefore(ghost, item);
+    }
+    ghost.style.transform = `translateY(${event.clientY - item.getBoundingClientRect().top}px)`;
     const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".setup-player-card");
     if (!target || target === item) return;
     const targetIndex = Number(target.dataset.index);
     if (!Number.isInteger(targetIndex) || targetIndex === draggedIndex) return;
-    reorderPlayer(draggedIndex, targetIndex);
-    draggedIndex = targetIndex;
+    const targetRect = target.getBoundingClientRect();
+    const insertBefore = event.clientY < targetRect.top + targetRect.height / 2;
+    list.insertBefore(ghost, insertBefore ? target : target.nextSibling);
+    const visualItems = [...list.querySelectorAll(".setup-player-card")];
+    const nextIndex = visualItems.indexOf(item);
+    if (nextIndex !== -1) {
+      const nextPlayers = [...setupPlayers];
+      const [movedPlayer] = nextPlayers.splice(draggedIndex, 1);
+      nextPlayers.splice(nextIndex, 0, movedPlayer);
+      setupPlayers = nextPlayers;
+      draggedIndex = nextIndex;
+      updateSetupList(list);
+    }
   });
   const finishPointerDrag = (event) => {
     if (event.pointerId !== pointerId) return;
     item.classList.remove("dragging");
+    ghost?.remove();
+    ghost = null;
+    state = createCurrentSetupState(setupPlayers);
+    saveState(state);
     if (item.hasPointerCapture(pointerId)) item.releasePointerCapture(pointerId);
     pointerId = null;
     draggedIndex = null;
@@ -299,6 +321,14 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   item.addEventListener("pointerup", finishPointerDrag);
   item.addEventListener("pointercancel", finishPointerDrag);
   list.append(item);
+}
+
+function updateSetupList(list) {
+  [...list.querySelectorAll(".setup-player-card")].forEach((playerCard, index) => {
+    playerCard.dataset.index = index;
+    const number = playerCard.querySelector(".setup-player-number");
+    if (number) number.textContent = String(index + 1).padStart(2, "0");
+  });
 }
 
 function refreshSetupControls(screen) {
