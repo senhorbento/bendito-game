@@ -4,6 +4,7 @@ const contracts = [
   ["home uses the Jogar action", () => app.querySelector(".home-screen .button")?.textContent === "Jogar"],
   ["home exposes the Bendito logo", () => app.querySelector('.home-screen img[alt="BENDITO"]') !== null],
   ["version footer is present", () => app.querySelector(".app-version")?.textContent.startsWith("BENDITO · versão ")],
+  ["results expose word and clue containers", () => document.querySelector(".results-word-reveal") === null || Boolean(document.querySelector(".results-word") && document.querySelector(".results-clue"))],
   ["test runner remains browser compatible", () => typeof document.createElement === "function"]
 ];
 

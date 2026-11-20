@@ -132,6 +132,10 @@ h2 { font-size: 1.5rem; }
 .results-screen { max-width: 1120px; }
 .results-screen h1 { max-width: 760px; }
 .results-stage { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; margin-top: 2px; }
+.results-word-reveal { display: grid; grid-template-columns: auto 1fr auto 1fr; align-items: center; gap: 8px 12px; width: min(100%, 620px); padding: 12px 14px; border: 1px solid rgba(54, 185, 233, .35); border-radius: 18px; background: linear-gradient(110deg, rgba(54, 185, 233, .12), rgba(255, 244, 232, .05)); }
+.results-word-label { color: var(--blue); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.results-word, .results-clue { overflow-wrap: anywhere; color: var(--white); font-size: 1.05rem; }
+.results-clue { color: var(--yellow); }
 .results-side-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; }
 .results-side-panel, .results-malandro { display: flex; flex-direction: column; align-items: center; min-width: 0; text-align: center; }
 .results-side-panel { gap: 7px; padding: 9px 8px; border: 1px solid rgba(255, 244, 232, .12); border-radius: 26px; background: linear-gradient(160deg, rgba(255, 244, 232, .08), rgba(255, 244, 232, .025)); }

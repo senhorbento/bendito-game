@@ -10,6 +10,12 @@ export function renderResultsScreen({ app, state, version, wordPoolLength, onRep
   screen.append(createElement("span", "eyebrow", "Revelação final"));
   screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${wordPoolLength} palavras usadas`));
   screen.append(createElement("h1", "", "Quem era o BENDITO?"));
+  const wordReveal = createElement("div", "results-word-reveal");
+  wordReveal.append(createElement("span", "results-word-label", "Palavra"));
+  wordReveal.append(createElement("strong", "results-word", state.pair.word));
+  wordReveal.append(createElement("span", "results-word-label", "Dica"));
+  wordReveal.append(createElement("strong", "results-clue", state.pair.clue));
+  screen.append(wordReveal);
   screen.append(createMalandroFigure(benditoNames, malandroNames));
   const sidePanels = createElement("div", "results-side-panels");
   sidePanels.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
