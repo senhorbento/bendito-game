@@ -48,6 +48,8 @@ function isRecoverableState(candidate) {
     && candidate.pair
     && typeof candidate.pair.word === "string"
     && typeof candidate.pair.clue === "string"
+    && Array.isArray(candidate.pair.clues)
+    && candidate.pair.clues.length === 3
     && (candidate.phase === "setup" || typeof candidate.categoryKey === "string")
     && (candidate.phase !== "discussion" || Number.isInteger(candidate.starterIndex))
     && (candidate.phase !== "voting" || typeof candidate.votingReady === "boolean");

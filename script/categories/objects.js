@@ -4,4 +4,4 @@ export const objects = [
   ["Garrafa","Bebida"],["Copo","Vidro"],["Prato","Refeição"],["Talher","Jantar"],["Panela","Cozinha"],["Frigideira","Fritura"],["Liquidificador","Mistura"],["Torradeira","Pão"],["Geladeira","Frio"],["Forno","Calor"],
   ["Vassoura","Limpeza"],["Balde","Água"],["Toalha","Secagem"],["Sabonete","Banho"],["Escova","Cerdas"],["Pente","Cabelo"],["Almofada","Cabeça"],["Cobertor","Aquecimento"],["Travesseiro","Descanso"],["Cortina","Janela"],
   ["Martelo","Pregos"],["Chave de fenda","Parafuso"],["Alicate","Pressão"],["Furadeira","Broca"],["Tesoura","Corte"],["Cola","Adesivo"],["Fita","Emenda"],["Lanterna","Claridade"],["Bússola","Norte"],["Binóculo","Distância"]
-].map(([word, clue]) => ({ word, clue }));
+].map(([word, clue]) => ({ word, clues: [clue, `Relacionado a ${word}`, `Associado a ${word}`] }));

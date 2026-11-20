@@ -4,4 +4,4 @@ export const animals = [
   ["Urso","Mel"],["Panda","Bambu"],["Lobo","Alcateia"],["Raposa","Astúcia"],["Onça","Floresta"],["Guepardo","Velocidade"],["Hipopótamo","Rio"],["Rinoceronte","Chifre"],["Hiena","Riso"],["Canguru","Bolsa"],
   ["Coala","Eucalipto"],["Preguiça","Lentidão"],["Morcego","Caverna"],["Esquilo","Nozes"],["Ouriço","Espinhos"],["Lontra","Natação"],["Foca","Gelo"],["Baleia","Oceano"],["Golfinho","Salto"],["Tubarão","Barbatana"],
   ["Polvo","Tentáculos"],["Caranguejo","Pinças"],["Tartaruga","Casco"],["Crocodilo","Pântano"],["Iguana","Escamas"],["Cobra","Veneno"],["Sapo","Brejo"],["Águia","Voo"],["Coruja","Noite"],["Arara","Colorida"]
-].map(([word, clue]) => ({ word, clue }));
+].map(([word, clue]) => ({ word, clues: [clue, `Relacionado a ${word}`, `Associado a ${word}`] }));

@@ -4,7 +4,7 @@ import {
   getDefaultBenditoCount,
   DISCUSSION_DURATION_MS
 } from "./game-rules.js";
-import { selectWordPair } from "./word-bank.js";
+import { selectClue, selectWordPair } from "./word-bank.js";
 
 export function createHomeState(players = []) {
   return { phase: "home", players };
@@ -16,20 +16,21 @@ export function createSetupState(players = [], categoryKey = "random", gameMode 
 
 export function createRoundState(players, benditoCount, categoryKey = "random", usedWords = [], gameMode = "jj", allowBenditoAttempt = false, lastStarterIndex = null) {
   const pair = selectWordPair(categoryKey, usedWords);
+  const roundPair = { ...pair, clue: selectClue(pair) };
   const nextUsedWords = [...usedWords, pair.word];
   const roles = createRoleAssignments(players.length, benditoCount);
   return {
     phase: "reveal",
     players: [...players],
     benditoCount,
-    categoryKey: pair.categoryKey,
-    categoryLabel: pair.categoryLabel,
-    pair,
+    categoryKey: roundPair.categoryKey,
+    categoryLabel: roundPair.categoryLabel,
+    pair: roundPair,
     usedWords: nextUsedWords,
     gameMode,
     allowBenditoAttempt,
     roles,
-    secrets: createSecrets(players, roles, pair),
+    secrets: createSecrets(players, roles, roundPair),
     revealIndex: 0,
     revealShown: false,
     timerEndsAt: null,

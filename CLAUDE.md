@@ -223,18 +223,20 @@ Implement the following screen sequence.
 -   Store all word and clue data locally in JavaScript.
 -   Organize the bank into separate JavaScript files by category under
     `script/categories/`.
--   Every category must contain exactly 50 word-and-clue entries.
--   The initial categories are food, animals, places, sports, movies, and
-    objects; adding another category must not require changing the game
-    engine.
+-   There must be exactly 10 categories in total, including Rio de Janeiro.
+-   Each category must contain at least 50 and at most 100 word entries.
+-   The initial categories are food, animals, places, sports, movies, objects,
+    music, professions, Rio de Janeiro, and technology; adding another category
+    must not require changing the game engine.
 -   After participant setup, allow the user to select exactly one category
     or choose the random category option. Persist the selected mode for the
     active round and use it when starting a new round.
--   Each entry must associate one main word with a clue consisting of
-    exactly one related word, without being identical to or an obvious
-    spelling variation of the main word.
+-   Each entry must associate one main word with exactly three distinct related
+    clues, without being identical to or an obvious spelling variation of the
+    main word.
 -   Keep the data structure consistent across categories.
--   Select a valid word/clue pair for each round.
+-   Select a valid word/clue pair and randomly select one of its three clues for
+    each round.
 -   Avoid selecting a clue that is identical to, or an obvious spelling
     variation of, the main word.
 -   Make it straightforward to add new categories and entries without
@@ -247,7 +249,7 @@ Example data shape (the exact implementation may be adapted):
 export const animals = [
   {
     word: "Girafa",
-    clue: "Savanna"
+    clues: ["Savanna", "Pescoço", "Manchas"]
   }
 ];
 ```
@@ -258,8 +260,8 @@ export const animals = [
 -   There must always be at least one Bendito and at least one regular
     player.
 -   The main word is shared by all regular players in a round.
--   All Benditos in a round receive the clue associated with that main
-    word.
+-   All Benditos in a round receive the same randomly selected clue associated
+    with that main word.
 -   Each participant may see only their own assignment during the reveal
     flow.
 -   The voting phase starts only after the 2-minute discussion timer has
@@ -303,7 +305,7 @@ applicable:
 -   Current screen or game phase.
 -   Participant names and their order.
 -   Configured number of Benditos.
--   Main word and clue for the active round.
+-   Main word and the selected clue for the active round.
 -   Participant role assignments.
 -   Current participant index in the reveal flow.
 -   Discussion timer start/end information or equivalent timestamp data.
@@ -397,21 +399,7 @@ When working on this project:
 11. Keep all created and modified project files inside `Bendito-Game/`.
 12. After every change, create a git commit and push it to the configured
     remote repository.
-13. Keep the user-facing application version in `script/version.js` and
-    display it in the footer using the semantic format `X.Y.Z`. The project
-    owner controls `X` and it must not be changed without explicit
-    instruction. Versioning is automatic and must not depend on additional
-    owner approval: classify every application commit as `feat` or `fix`,
-    then update the version before creating the commit. A `feat` increments
-    only `Y`, preserving `Z`; a `fix` increments only `Z`, preserving `Y`.
-    For example, `1.4.40` becomes `1.5.40` for a feature and `1.5.41` for a
-    bug fix. The commit subject must use the matching Conventional Commit
-    prefix (`feat:` or `fix:`). Every `fix` must include a regression test
-    that reproduces the failure and verifies the correction. Verify the
-    version, tests, and frontend footer before committing and publishing.
-    The current application version is `1.8.8` unless the project owner
-    specifies another baseline.
-14. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
+13. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
 
 ## 12. Product Owner Decisions

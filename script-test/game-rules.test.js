@@ -8,6 +8,7 @@ import {
   validateName
 } from "../script/game-rules.js";
 import { beginVotingStep, createRoundState, startDiscussion, startVoting } from "../script/game-state.js";
+import { categories, allPairs, selectClue } from "../script/word-bank.js";
 import { getDefaultBenditoCount } from "../script/game-rules.js";
 
 const tests = [
@@ -35,6 +36,18 @@ const tests = [
     const round = createRoundState(["Ana", "Bia", "Caio"], 1);
     const voting = startVoting(round);
     return voting.votingReady === false && beginVotingStep(voting).votingReady === true;
+  }],
+  ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],
+  ["keeps every category between fifty and one hundred words", () => Object.values(categories).every(({ pairs }) => pairs.length >= 50 && pairs.length <= 100)],
+  ["keeps three distinct clues on every word", () => allPairs.every(({ word, clues }) => clues.length === 3 && new Set(clues).size === 3 && clues.every((clue) => clue.toLocaleLowerCase() !== word.toLocaleLowerCase()))],
+  ["selects a clue using the supplied random function", () => {
+    const pair = allPairs[0];
+    return selectClue(pair, () => 0) === pair.clues[0] && selectClue(pair, () => 0.99) === pair.clues[2];
+  }],
+  ["gives Benditos the selected clue", () => {
+    const round = createRoundState(["Ana", "Bia", "Caio"], 1);
+    const benditoIndex = round.roles.indexOf("bendito");
+    return round.secrets[benditoIndex].secret === round.pair.clue && round.pair.clues.includes(round.secrets[benditoIndex].secret) && typeof round.secrets[benditoIndex].secret === "string";
   }]
 ];
 
