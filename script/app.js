@@ -160,10 +160,10 @@ function renderSetup() {
   const list = createElement("div", "player-list");
   list.id = "setup-player-list";
   let draggedIndex = null;
-  setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list, () => draggedIndex));
+  setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list, (value) => { draggedIndex = value; }, () => draggedIndex));
   screen.append(list);
 
-  const nextButton = createButton("Definir a rodada", "button", () => renderRoundSetup(), setupPlayers.length < 3);
+  const nextButton = createButton("Bora organizar", "button", () => renderRoundSetup(), setupPlayers.length < 3);
   nextButton.id = "setup-next-button";
   screen.append(nextButton);
   app.replaceChildren(screen);
@@ -173,7 +173,7 @@ function renderSetup() {
 function renderRoundSetup() {
   const screen = createElement("section", "screen setup-options-screen");
   screen.append(createElement("span", "eyebrow", "Configura a resenha"));
-  screen.append(createElement("h1", "", "Como vai ser?"));
+  screen.append(createElement("h1", "", "Qual vai ser?"));
 
   const countField = createElement("div", "field");
   const countLabel = createElement("label", "", "Quantidade de BENDITOS");
@@ -241,7 +241,7 @@ function renderRoundSetup() {
   screen.append(wordCounter);
 
   const actions = createElement("div", "actions");
-  actions.append(createButton("Vamo lá", "button", () => {
+  actions.append(createButton("Partiu", "button", () => {
     const nextState = createRoundState(setupPlayers, currentCount, categorySelect.value, sessionUsedWords, modeSelect.value, attemptInput.checked, sessionLastStarterIndex);
     sessionUsedWords = [...nextState.usedWords];
     updateState(nextState);
@@ -252,7 +252,7 @@ function renderRoundSetup() {
   appendVersionFooter(screen);
 }
 
-function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list"), getDraggedIndex = () => null) {
+function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list"), setDraggedIndex = () => {}, getDraggedIndex = () => null) {
   const player = setupPlayers[index];
   const item = createElement("article", "player-item setup-player-card");
   item.draggable = true;
@@ -262,8 +262,16 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   identity.append(createElement("span", "drag-handle", player));
   item.append(identity);
   item.append(createButton("×", "icon-button", () => removePlayer(index), false));
-  item.addEventListener("dragstart", () => { item.classList.add("dragging"); });
-  item.addEventListener("dragend", () => { item.classList.remove("dragging"); });
+  item.addEventListener("dragstart", (event) => {
+    setDraggedIndex(index);
+    item.classList.add("dragging");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", String(index));
+  });
+  item.addEventListener("dragend", () => {
+    setDraggedIndex(null);
+    item.classList.remove("dragging");
+  });
   item.addEventListener("dragover", (event) => event.preventDefault());
   item.addEventListener("drop", (event) => {
     event.preventDefault();
@@ -409,7 +417,7 @@ function renderVoting() {
   const voterIsBendito = state.roles[state.votingIndex] === "bendito";
   screen.append(createElement("span", "eyebrow", `Votação ${state.votingIndex + 1} de ${state.players.length}`));
   screen.append(createElement("h1", "", `Vez de ${voter}`));
-  screen.append(createElement("p", "muted", voterIsBendito ? "Se quiser, tenta descobrir a palavra. Seu palpite é secreto." : "Escolha quem você acha que é BENDITO. Seu voto é secreto."));
+  screen.append(createElement("p", "muted", voterIsBendito ? "Hora de se salvar, se você for malandro mesmo, qual era a palavra?" : "Escolha quem você acha que é BENDITO. Seu voto é secreto."));
 
   if (!voterIsBendito || state.allowBenditoAttempt) {
     const voteList = createElement("div", "vote-list");
@@ -525,6 +533,6 @@ function createMalandroFigure(names, malandroNames) {
   figure.append(createCharacter("malandro"));
   figure.append(createElement("span", "results-role", "BENDITO"));
   figure.append(createElement("strong", "results-bendito-name", names.join(" + ")));
-  if (malandroNames.length) figure.append(createElement("span", "result-highlight", "BENDITO malandro demais"));
+  if (malandroNames.length) figure.append(createElement("span", "result-highlight result-highlight-saved", "BENDITO MALANDRO DEMAIS, SE SALVOU"));
   return figure;
 }
