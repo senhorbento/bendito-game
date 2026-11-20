@@ -5,7 +5,7 @@ const versionPattern = /^\d+\.\d+\.\d+$/;
 const playerCardSupportsPointerDrag = true;
 const item = document.createElement("li");
 
-if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.5.3" && playerCardSupportsPointerDrag) {
+if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.5.4" && playerCardSupportsPointerDrag) {
   item.textContent = `OK — mantém a versão semântica ${APP_VERSION}`;
   item.className = "passed";
 } else {

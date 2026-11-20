@@ -32,10 +32,9 @@ if (current.join(".") !== expected.join(".")) {
 }
 
 if (type === "fix") {
-  const changedFiles = execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", parent, "HEAD"], { encoding: "utf8" });
-  if (!changedFiles.split("\n").some((file) => /(^|\/)(script-test|tests?)(\/|\.)/.test(file))) {
-    fail("Todo fix deve incluir um teste de regressão em script-test/.");
-  }
+  const stagedFiles = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACMR"], { encoding: "utf8" });
+  const hasRegressionTest = stagedFiles.split("\n").some((file) => /(^|\/)(script-test|tests?)(\/|\.)/.test(file));
+  if (!hasRegressionTest) fail("Todo fix deve incluir um teste de regressão em script-test/.");
 }
 
 process.stdout.write(`Versão ${current.join(".")} validada para ${type}.\n`);
