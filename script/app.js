@@ -3,8 +3,8 @@ import {
   canAttemptWord,
   canVote,
   evaluateVotes,
-  getBENDITOBounds,
-  getDefaultBENDITOCount,
+  getBenditoBounds,
+  getDefaultBenditoCount,
   getRemainingTime,
   validateName
 } from "./game-rules.js";
@@ -166,14 +166,14 @@ function renderSetup() {
   const countField = createElement("div", "field");
   const countLabel = createElement("label", "", "Quantidade de BENDITOS");
   const countControl = createElement("div", "number-control");
-  const bounds = getBENDITOBounds(setupPlayers.length);
-  const currentCount = Math.min(Math.max(Number(state.benditoCount) || getDefaultBENDITOCount(setupPlayers.length), bounds.min), bounds.max);
+  const bounds = getBenditoBounds(setupPlayers.length);
+  const currentCount = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
   const countValue = createElement("output", "count-value", bounds.max > 0 ? String(currentCount) : "—");
   countValue.id = "setup-count-value";
   countValue.setAttribute("aria-live", "polite");
-  const decrementButton = createButton("−", "icon-button", () => updateBENDITOCount(currentCount - 1), bounds.max === 0 || currentCount <= bounds.min);
+  const decrementButton = createButton("−", "icon-button", () => updateBenditoCount(currentCount - 1), bounds.max === 0 || currentCount <= bounds.min);
   decrementButton.setAttribute("aria-label", "Diminuir quantidade de BENDITOS");
-  const incrementButton = createButton("+", "icon-button", () => updateBENDITOCount(currentCount + 1), bounds.max === 0 || currentCount >= bounds.max);
+  const incrementButton = createButton("+", "icon-button", () => updateBenditoCount(currentCount + 1), bounds.max === 0 || currentCount >= bounds.max);
   incrementButton.setAttribute("aria-label", "Aumentar quantidade de BENDITOS");
   countControl.append(decrementButton, countValue, incrementButton);
   countField.append(countLabel, countControl);
@@ -194,8 +194,8 @@ function renderSetup() {
   const attemptField = createElement("label", "toggle-field");
   const attemptInput = document.createElement("input");
   attemptInput.type = "checkbox";
-  attemptInput.checked = state.allowBENDITOAttempt === true;
-  attemptInput.addEventListener("change", () => { state = { ...state, allowBENDITOAttempt: attemptInput.checked }; saveState(state); });
+  attemptInput.checked = state.allowBenditoAttempt === true;
+  attemptInput.addEventListener("change", () => { state = { ...state, allowBenditoAttempt: attemptInput.checked }; saveState(state); });
   attemptField.append(attemptInput, createElement("span", "", "Permitir o BENDITO dar um palpite na palavra"));
   screen.append(attemptField);
 
@@ -227,7 +227,7 @@ function renderSetup() {
 
   const actions = createElement("div", "actions");
   const startButton = createButton("Vamo lá", "button", () => {
-    const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBENDITOAttempt || false, sessionLastStarterIndex);
+    const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, sessionLastStarterIndex);
     sessionUsedWords = [...nextState.usedWords];
     updateState(nextState);
   }, setupPlayers.length < 3);
@@ -258,8 +258,8 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
 }
 
 function refreshSetupControls(screen) {
-  const bounds = getBENDITOBounds(setupPlayers.length);
-  const count = Math.min(Math.max(Number(state.benditoCount) || getDefaultBENDITOCount(setupPlayers.length), bounds.min), bounds.max);
+  const bounds = getBenditoBounds(setupPlayers.length);
+  const count = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
   const countValue = screen.querySelector("#setup-count-value");
   const startButton = screen.querySelector("#setup-start-button");
   if (countValue) countValue.textContent = bounds.max > 0 ? String(count) : "—";
@@ -271,13 +271,13 @@ function reorderPlayer(from, to) {
   const nextPlayers = [...setupPlayers];
   [nextPlayers[from], nextPlayers[to]] = [nextPlayers[to], nextPlayers[from]];
   setupPlayers = nextPlayers;
-  state = { ...createSetupState(setupPlayers), benditoCount: Math.min(Math.max(state.benditoCount || 0, getBENDITOBounds(setupPlayers.length).min), getBENDITOBounds(setupPlayers.length).max) };
+  state = { ...createSetupState(setupPlayers), benditoCount: Math.min(Math.max(state.benditoCount || 0, getBenditoBounds(setupPlayers.length).min), getBenditoBounds(setupPlayers.length).max) };
   saveState(state);
   render();
 }
 
-function updateBENDITOCount(count) {
-  const bounds = getBENDITOBounds(setupPlayers.length);
+function updateBenditoCount(count) {
+  const bounds = getBenditoBounds(setupPlayers.length);
   if (count < bounds.min || count > bounds.max) return;
   state = { ...createSetupState(setupPlayers), benditoCount: count };
   saveState(state);
@@ -286,7 +286,7 @@ function updateBENDITOCount(count) {
 
 function removePlayer(index) {
   setupPlayers = setupPlayers.filter((_, playerIndex) => playerIndex !== index);
-  const bounds = getBENDITOBounds(setupPlayers.length);
+  const bounds = getBenditoBounds(setupPlayers.length);
   const benditoCount = bounds.max > 0 ? Math.min(Math.max(state.benditoCount || bounds.min, bounds.min), bounds.max) : 0;
   state = { ...createSetupState(setupPlayers), benditoCount };
   saveState(state);
@@ -294,7 +294,7 @@ function removePlayer(index) {
 }
 
 function appendVersionFooter(screen) {
-  screen.append(createElement("small", "app-version", "BENDITO · versão 1.0"));
+  screen.append(createElement("small", "app-version", "BENDITO · versão 1.1"));
 }
 
 function renderReveal() {
@@ -377,22 +377,22 @@ function renderVoting() {
     appendVersionFooter(screen);
     return;
   }
-  const voterIsBENDITO = state.roles[state.votingIndex] === "bendito";
+  const voterIsBendito = state.roles[state.votingIndex] === "bendito";
   screen.append(createElement("span", "eyebrow", `Votação ${state.votingIndex + 1} de ${state.players.length}`));
   screen.append(createElement("h1", "", `Vez de ${voter}`));
-  screen.append(createElement("p", "muted", voterIsBENDITO ? "Se quiser, tenta descobrir a palavra. Seu palpite é secreto." : "Escolha quem você acha que é BENDITO. Seu voto é secreto."));
+  screen.append(createElement("p", "muted", voterIsBendito ? "Se quiser, tenta descobrir a palavra. Seu palpite é secreto." : "Escolha quem você acha que é BENDITO. Seu voto é secreto."));
 
-  if (!voterIsBENDITO || state.allowBENDITOAttempt) {
+  if (!voterIsBendito || state.allowBenditoAttempt) {
     const voteList = createElement("div", "vote-list");
     let selectedTarget;
     let selectedWordAttempt;
-    const options = voterIsBENDITO ? [state.pair.word, ...allPairs.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
+    const options = voterIsBendito ? [state.pair.word, ...allPairs.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
     options.forEach((optionValue) => {
-      const player = voterIsBENDITO ? optionValue : optionValue.player;
-      const index = voterIsBENDITO ? undefined : optionValue.index;
+      const player = voterIsBendito ? optionValue : optionValue.player;
+      const index = voterIsBendito ? undefined : optionValue.index;
       const option = createButton(player, "vote-option", () => {
-        selectedTarget = voterIsBENDITO ? undefined : index;
-        selectedWordAttempt = voterIsBENDITO ? player : undefined;
+        selectedTarget = voterIsBendito ? undefined : index;
+        selectedWordAttempt = voterIsBendito ? player : undefined;
         [...voteList.children].forEach((child) => {
           child.classList.remove("selected");
           child.blur();
@@ -404,7 +404,7 @@ function renderVoting() {
     });
     screen.append(voteList);
     screen.append(createButton("Confirmar voto", "button", () => {
-      if (voterIsBENDITO) {
+      if (voterIsBendito) {
         if (!canAttemptWord(state.votingIndex, state.roles, state.wordAttempts[state.votingIndex])) return;
         submitVote(undefined, selectedWordAttempt);
         return;
@@ -452,7 +452,7 @@ function renderResults() {
 
   const actions = createElement("div", "actions");
   actions.append(createButton("Vamo de novo", "button", () => {
-    const nextState = createRoundState(state.players, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBENDITOAttempt || false, state.lastStarterIndex);
+    const nextState = createRoundState(state.players, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, state.lastStarterIndex);
     sessionUsedWords = [...nextState.usedWords];
     updateState(nextState);
   }));
