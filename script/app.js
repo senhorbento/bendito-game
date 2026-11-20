@@ -294,7 +294,7 @@ function removePlayer(index) {
 }
 
 function appendVersionFooter(screen) {
-  screen.append(createElement("small", "app-version", "BENDITO · versão 1.2"));
+  screen.append(createElement("small", "app-version", "BENDITO · versão 1.2.0"));
 }
 
 function renderReveal() {

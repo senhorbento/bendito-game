@@ -397,11 +397,13 @@ When working on this project:
 11. Keep all created and modified project files inside `Bendito-Game/`.
 12. After every change, create a git commit and push it to the configured
     remote repository.
-13. Keep the user-facing application version in the footer. The current
-    application version is `1.0`. Every commit that changes the application
-    must increment the version shown in the frontend, using a consistent
-    numeric version format such as `1.1`, `1.2`, and so on. The version update
-    must be included in the same change and verified before publishing.
+13. Keep the user-facing application version in the footer using the
+    semantic format `X.Y.Z`. The project owner controls `X` and it must not
+    be changed without explicit instruction. Increment `Y` by one for each
+    new feature. Increment `Z` by one for each bug fix. The version update
+    must be included in the same frontend change and verified before
+    publishing. The current application version is `1.2.0` unless the
+    project owner specifies another baseline.
 14. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
 
