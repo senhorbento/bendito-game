@@ -141,7 +141,7 @@ function renderSetup() {
   input.placeholder = "Nome do participante";
   input.setAttribute("aria-label", "Nome do participante");
   const error = createElement("p", "error");
-  const addButton = createButton("Adicionar", "button secondary add-player-button");
+  const addButton = createButton("+", "button secondary add-player-button");
   addButton.type = "submit";
   addButton.setAttribute("aria-label", "Adicionar participante");
   addForm.append(input, addButton);
@@ -169,7 +169,6 @@ function renderSetup() {
     list.append(createElement("p", "empty-player-list", "Adicione pelo menos 3 pessoas para começar."));
   } else {
     setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list));
-    screen.append(createElement("p", "drag-hint", "Arraste para reorganizar"));
   }
   screen.append(list);
 
@@ -292,70 +291,7 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   removeButton.title = "Remover participante";
   removeButton.append(createElement("span", "trash-icon", ""));
   item.append(removeButton);
-  let pointerId = null;
-  let draggedIndex = null;
-  let hasMoved = false;
-  let ghost = null;
-  let originalPlayerOrder = null;
-  item.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 || event.target.closest("button")) return;
-    pointerId = event.pointerId;
-    draggedIndex = index;
-    originalPlayerOrder = [...setupPlayers];
-    hasMoved = false;
-    item.setPointerCapture(pointerId);
-  });
-  item.addEventListener("pointermove", (event) => {
-    if (event.pointerId !== pointerId || draggedIndex === null) return;
-    if (!hasMoved && Math.abs(event.movementX) + Math.abs(event.movementY) < 4) return;
-    hasMoved = true;
-    item.classList.add("dragging");
-    if (!ghost) {
-      ghost = createElement("div", "player-drag-ghost", player);
-      list.insertBefore(ghost, item);
-    }
-    ghost.style.transform = `translateY(${event.clientY - item.getBoundingClientRect().top}px)`;
-    const target = [...list.querySelectorAll(".setup-player-card:not(.dragging)")]
-      .find((card) => {
-        const rect = card.getBoundingClientRect();
-        return event.clientY >= rect.top && event.clientY <= rect.bottom;
-      });
-    if (!target) return;
-    const targetRect = target.getBoundingClientRect();
-    const insertBefore = event.clientY < targetRect.top + targetRect.height / 2;
-    list.insertBefore(ghost, insertBefore ? target : target.nextSibling);
-    const visualItems = [...list.querySelectorAll(".setup-player-card")];
-    const nextIndex = visualItems.indexOf(item);
-    if (nextIndex === -1 || nextIndex === draggedIndex) return;
-    const [movedPlayer] = setupPlayers.splice(draggedIndex, 1);
-    setupPlayers.splice(nextIndex, 0, movedPlayer);
-    draggedIndex = nextIndex;
-    updateSetupList(list);
-  });
-  const finishPointerDrag = (event) => {
-    if (event.pointerId !== pointerId) return;
-    item.classList.remove("dragging");
-    ghost?.remove();
-    ghost = null;
-    if (!hasMoved && originalPlayerOrder) setupPlayers = originalPlayerOrder;
-    state = createCurrentSetupState(setupPlayers);
-    saveState(state);
-    if (item.hasPointerCapture(pointerId)) item.releasePointerCapture(pointerId);
-    pointerId = null;
-    draggedIndex = null;
-    originalPlayerOrder = null;
-  };
-  item.addEventListener("pointerup", finishPointerDrag);
-  item.addEventListener("pointercancel", finishPointerDrag);
   list.append(item);
-}
-
-function updateSetupList(list) {
-  [...list.querySelectorAll(".setup-player-card")].forEach((playerCard, index) => {
-    playerCard.dataset.index = index;
-    const number = playerCard.querySelector(".setup-player-number");
-    if (number) number.textContent = String(index + 1).padStart(2, "0");
-  });
 }
 
 function movePlayer(from, to) {
