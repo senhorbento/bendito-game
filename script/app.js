@@ -11,6 +11,7 @@ import {
 import { beginVotingStep, createHomeState, createRoundState, createSetupState, completeRound, startDiscussion, startVoting } from "./game-state.js";
 import { clearState, loadState, saveState } from "./persistence.js";
 import { formatRemainingTime, startTimer } from "./timer.js";
+import { APP_VERSION } from "./version.js";
 
 const app = document.querySelector("#app");
 let state = loadState();
@@ -331,7 +332,7 @@ function removePlayer(index) {
 }
 
 function appendVersionFooter(screen) {
-  screen.append(createElement("small", "app-version", "BENDITO · versão 1.3.0"));
+  screen.append(createElement("small", "app-version", `BENDITO · versão ${APP_VERSION}`));
 }
 
 function renderReveal() {
