@@ -3,4 +3,4 @@ set -eu
 
 commit_message_file="$1"
 subject=$(sed -n '1p' "$commit_message_file")
-node script/validate-version.js HEAD^ "$subject"
+node script/validate-version.js "$subject"
