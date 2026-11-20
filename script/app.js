@@ -124,10 +124,10 @@ function renderHomeScreen() {
 }
 
 function renderSetup() {
-  const screen = createElement("section", "screen");
+  const screen = createElement("section", "screen setup-players-screen");
   screen.append(createElement("span", "eyebrow", "Nova rodada"));
   screen.append(createElement("h1", "", "Quem está no bonde?"));
-  screen.append(createElement("p", "muted", "Monte a turma e prepare o celular para circular."));
+  screen.append(createElement("p", "muted", "Adiciona a galera e organiza o bonde."));
 
   const addForm = createElement("form", "row");
   const input = createElement("input", "input");
@@ -148,7 +148,7 @@ function renderSetup() {
       return;
     }
     setupPlayers = [...setupPlayers, input.value.trim().replace(/\s+/g, " ")];
-    state = createSetupState(setupPlayers);
+    state = createSetupState(setupPlayers, state.categoryKey || "random", state.gameMode || "jj", state.allowBenditoAttempt || false, sessionUsedWords, sessionLastStarterIndex);
     saveState(state);
     appendSetupPlayer(screen, setupPlayers.length - 1);
     input.value = "";
@@ -163,13 +163,24 @@ function renderSetup() {
   setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list, () => draggedIndex));
   screen.append(list);
 
+  const nextButton = createButton("Definir a rodada", "button", () => renderRoundSetup(), setupPlayers.length < 3);
+  nextButton.id = "setup-next-button";
+  screen.append(nextButton);
+  app.replaceChildren(screen);
+  appendVersionFooter(screen);
+}
+
+function renderRoundSetup() {
+  const screen = createElement("section", "screen setup-options-screen");
+  screen.append(createElement("span", "eyebrow", "Configura a resenha"));
+  screen.append(createElement("h1", "", "Como vai ser?"));
+
   const countField = createElement("div", "field");
   const countLabel = createElement("label", "", "Quantidade de BENDITOS");
   const countControl = createElement("div", "number-control");
   const bounds = getBenditoBounds(setupPlayers.length);
   const currentCount = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
   const countValue = createElement("output", "count-value", bounds.max > 0 ? String(currentCount) : "—");
-  countValue.id = "setup-count-value";
   countValue.setAttribute("aria-live", "polite");
   const decrementButton = createButton("−", "icon-button", () => updateBenditoCount(currentCount - 1), bounds.max === 0 || currentCount <= bounds.min);
   decrementButton.setAttribute("aria-label", "Diminuir quantidade de BENDITOS");
@@ -182,10 +193,12 @@ function renderSetup() {
   const modeField = createElement("div", "field");
   modeField.append(createElement("label", "", "Modo de jogo"));
   const modeSelect = createElement("select", "select");
-  modeSelect.append(createElement("option", "", "Modo JJ — geral junto"));
-  modeSelect.lastChild.value = "jj";
-  modeSelect.append(createElement("option", "", "Cada um por si"));
-  modeSelect.lastChild.value = "free-for-all";
+  modeSelect.setAttribute("aria-label", "Modo de jogo");
+  [["jj", "Modo JJ — geral junto"], ["free-for-all", "Cada um por si"]].forEach(([value, label]) => {
+    const option = createElement("option", "", label);
+    option.value = value;
+    modeSelect.append(option);
+  });
   modeSelect.value = state.gameMode || "jj";
   modeSelect.addEventListener("change", () => { state = { ...state, gameMode: modeSelect.value }; saveState(state); });
   modeField.append(modeSelect);
@@ -194,45 +207,46 @@ function renderSetup() {
   const attemptField = createElement("label", "toggle-field");
   const attemptInput = document.createElement("input");
   attemptInput.type = "checkbox";
+  attemptInput.setAttribute("aria-label", "Permitir o BENDITO se salvar");
   attemptInput.checked = state.allowBenditoAttempt === true;
   attemptInput.addEventListener("change", () => { state = { ...state, allowBenditoAttempt: attemptInput.checked }; saveState(state); });
-  attemptField.append(attemptInput, createElement("span", "", "Permitir o BENDITO dar um palpite na palavra"));
+  attemptField.append(attemptInput, createElement("span", "", "Permitir o BENDITO se salvar"));
   screen.append(attemptField);
 
   const categoryField = createElement("div", "field");
-  const categoryLabel = createElement("label", "", "Categoria");
+  categoryField.append(createElement("label", "", "Categoria"));
   const categorySelect = createElement("select", "select");
   categorySelect.setAttribute("aria-label", "Categoria da rodada");
-  const randomOption = createElement("option", "", "Aleatória");
+  const wordCounter = createElement("p", "word-counter");
+  const randomOption = createElement("option", "", "Aleatória — todos os temas");
   randomOption.value = "random";
   categorySelect.append(randomOption);
   Object.entries(categories).forEach(([key, category]) => {
     const option = createElement("option", "", category.label);
     option.value = key;
-    option.selected = (state.categoryKey || "random") === key;
     categorySelect.append(option);
   });
   categorySelect.value = state.categoryKey || "random";
+  const updateWordCounter = () => {
+    wordCounter.textContent = `${sessionUsedWords.length} / ${getWordPool(categorySelect.value).length} palavras usadas`;
+  };
   categorySelect.addEventListener("change", () => {
     state = { ...state, categoryKey: categorySelect.value };
     saveState(state);
+    updateWordCounter();
   });
-  categoryField.append(categoryLabel, categorySelect);
-  const wordPool = getWordPool(categorySelect.value);
-  const wordCounter = createElement("p", "word-counter", `${sessionUsedWords.length} / ${wordPool.length} palavras usadas`);
-  categorySelect.addEventListener("change", () => {
-    wordCounter.textContent = `${sessionUsedWords.length} / ${getWordPool(categorySelect.value).length} palavras usadas`;
-  });
-  screen.append(categoryField, wordCounter);
+  categoryField.append(categorySelect);
+  screen.append(categoryField);
+  updateWordCounter();
+  screen.append(wordCounter);
 
   const actions = createElement("div", "actions");
-  const startButton = createButton("Vamo lá", "button", () => {
-    const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, sessionLastStarterIndex);
+  actions.append(createButton("Vamo lá", "button", () => {
+    const nextState = createRoundState(setupPlayers, currentCount, categorySelect.value, sessionUsedWords, modeSelect.value, attemptInput.checked, sessionLastStarterIndex);
     sessionUsedWords = [...nextState.usedWords];
     updateState(nextState);
-  }, setupPlayers.length < 3);
-  startButton.id = "setup-start-button";
-  actions.append(startButton);
+  }));
+  actions.append(createButton("Voltar para jogadores", "button secondary", () => renderSetup()));
   screen.append(actions);
   app.replaceChildren(screen);
   appendVersionFooter(screen);
@@ -240,10 +254,13 @@ function renderSetup() {
 
 function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list"), getDraggedIndex = () => null) {
   const player = setupPlayers[index];
-  const item = createElement("div", "player-item");
+  const item = createElement("article", "player-item setup-player-card");
   item.draggable = true;
   item.dataset.index = index;
-  item.append(createElement("span", "drag-handle", `☷ ${player}`));
+  const identity = createElement("span", "setup-player-identity");
+  identity.append(createElement("span", "setup-player-number", String(index + 1).padStart(2, "0")));
+  identity.append(createElement("span", "drag-handle", player));
+  item.append(identity);
   item.append(createButton("×", "icon-button", () => removePlayer(index), false));
   item.addEventListener("dragstart", () => { item.classList.add("dragging"); });
   item.addEventListener("dragend", () => { item.classList.remove("dragging"); });
@@ -258,12 +275,26 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
 }
 
 function refreshSetupControls(screen) {
-  const bounds = getBenditoBounds(setupPlayers.length);
-  const count = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
-  const countValue = screen.querySelector("#setup-count-value");
-  const startButton = screen.querySelector("#setup-start-button");
-  if (countValue) countValue.textContent = bounds.max > 0 ? String(count) : "—";
-  if (startButton) startButton.disabled = setupPlayers.length < 3;
+  const nextButton = screen.querySelector("#setup-next-button");
+  if (nextButton) nextButton.disabled = setupPlayers.length < 3;
+}
+
+function createCurrentSetupState(players, benditoCount = state.benditoCount) {
+  const bounds = getBenditoBounds(players.length);
+  const safeCount = bounds.max > 0
+    ? Math.min(Math.max(Number(benditoCount) || getDefaultBenditoCount(players.length), bounds.min), bounds.max)
+    : 0;
+  return {
+    ...createSetupState(
+      players,
+      state.categoryKey || "random",
+      state.gameMode || "jj",
+      state.allowBenditoAttempt === true,
+      sessionUsedWords,
+      sessionLastStarterIndex
+    ),
+    benditoCount: safeCount
+  };
 }
 
 function reorderPlayer(from, to) {
@@ -271,7 +302,7 @@ function reorderPlayer(from, to) {
   const nextPlayers = [...setupPlayers];
   [nextPlayers[from], nextPlayers[to]] = [nextPlayers[to], nextPlayers[from]];
   setupPlayers = nextPlayers;
-  state = { ...createSetupState(setupPlayers), benditoCount: Math.min(Math.max(state.benditoCount || 0, getBenditoBounds(setupPlayers.length).min), getBenditoBounds(setupPlayers.length).max) };
+  state = createCurrentSetupState(setupPlayers);
   saveState(state);
   render();
 }
@@ -279,22 +310,20 @@ function reorderPlayer(from, to) {
 function updateBenditoCount(count) {
   const bounds = getBenditoBounds(setupPlayers.length);
   if (count < bounds.min || count > bounds.max) return;
-  state = { ...createSetupState(setupPlayers), benditoCount: count };
+  state = createCurrentSetupState(setupPlayers, count);
   saveState(state);
   render();
 }
 
 function removePlayer(index) {
   setupPlayers = setupPlayers.filter((_, playerIndex) => playerIndex !== index);
-  const bounds = getBenditoBounds(setupPlayers.length);
-  const benditoCount = bounds.max > 0 ? Math.min(Math.max(state.benditoCount || bounds.min, bounds.min), bounds.max) : 0;
-  state = { ...createSetupState(setupPlayers), benditoCount };
+  state = createCurrentSetupState(setupPlayers);
   saveState(state);
   render();
 }
 
 function appendVersionFooter(screen) {
-  screen.append(createElement("small", "app-version", "BENDITO · versão 1.2.0"));
+  screen.append(createElement("small", "app-version", "BENDITO · versão 1.3.0"));
 }
 
 function renderReveal() {
