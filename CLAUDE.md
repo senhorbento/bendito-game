@@ -400,14 +400,17 @@ When working on this project:
 13. Keep the user-facing application version in `script/version.js` and
     display it in the footer using the semantic format `X.Y.Z`. The project
     owner controls `X` and it must not be changed without explicit
-    instruction. Feature releases increment only `Y`, preserving the current
-    `Z`; bug fixes increment only `Z`, preserving the current `Y`. For
-    example, `1.4.40` becomes `1.5.40` for a feature and `1.5.41` for a
-    bug fix. Every frontend change must update the version in the same
-    change, and a bug fix must include a regression test that reproduces the
-    failure and verifies the correction. Verify the version and tests before
-    publishing. The current application version is `1.5.2` unless the
-    project owner specifies another baseline.
+    instruction. Versioning is automatic and must not depend on additional
+    owner approval: classify every application commit as `feat` or `fix`,
+    then update the version before creating the commit. A `feat` increments
+    only `Y`, preserving `Z`; a `fix` increments only `Z`, preserving `Y`.
+    For example, `1.4.40` becomes `1.5.40` for a feature and `1.5.41` for a
+    bug fix. The commit subject must use the matching Conventional Commit
+    prefix (`feat:` or `fix:`). Every `fix` must include a regression test
+    that reproduces the failure and verifies the correction. Verify the
+    version, tests, and frontend footer before committing and publishing.
+    The current application version is `1.5.2` unless the project owner
+    specifies another baseline.
 14. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
 
