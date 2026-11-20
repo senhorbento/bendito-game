@@ -423,7 +423,8 @@ function renderVoting() {
     const voteList = createElement("div", "vote-list");
     let selectedTarget;
     let selectedWordAttempt;
-    const options = voterIsBendito ? [state.pair.word, ...allPairs.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
+    const wordPool = getWordPool(state.categoryKey || "random");
+    const options = voterIsBendito ? [state.pair.word, ...wordPool.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
     options.forEach((optionValue) => {
       const player = voterIsBendito ? optionValue : optionValue.player;
       const index = voterIsBendito ? undefined : optionValue.index;
