@@ -409,7 +409,7 @@ When working on this project:
     prefix (`feat:` or `fix:`). Every `fix` must include a regression test
     that reproduces the failure and verifies the correction. Verify the
     version, tests, and frontend footer before committing and publishing.
-    The current application version is `1.6.8` unless the project owner
+    The current application version is `1.7.8` unless the project owner
     specifies another baseline.
 14. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.

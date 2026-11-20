@@ -125,6 +125,15 @@ function renderSetup() {
   screen.append(createElement("h1", "", "Quem está no bonde?"));
   screen.append(createElement("p", "muted", "Adiciona a galera e organiza o bonde."));
 
+  const playerSummary = createElement("p", "player-summary");
+  const updatePlayerSummary = () => {
+    playerSummary.textContent = setupPlayers.length === 0
+      ? "Ainda não tem ninguém no bonde."
+      : `${setupPlayers.length} ${setupPlayers.length === 1 ? "pessoa" : "pessoas"} no bonde`;
+  };
+  updatePlayerSummary();
+  screen.append(playerSummary);
+
   const addForm = createElement("form", "row");
   const input = createElement("input", "input");
   input.type = "text";
@@ -132,7 +141,7 @@ function renderSetup() {
   input.placeholder = "Nome do participante";
   input.setAttribute("aria-label", "Nome do participante");
   const error = createElement("p", "error");
-  const addButton = createButton("+", "button secondary add-player-button");
+  const addButton = createButton("Adicionar", "button secondary add-player-button");
   addButton.type = "submit";
   addButton.setAttribute("aria-label", "Adicionar participante");
   addForm.append(input, addButton);
@@ -147,6 +156,7 @@ function renderSetup() {
     state = createSetupState(setupPlayers, state.categoryKey || "random", state.gameMode || "jj", state.allowBenditoAttempt || false, sessionUsedWords, sessionLastStarterIndex);
     saveState(state);
     appendSetupPlayer(screen, setupPlayers.length - 1);
+    updatePlayerSummary();
     input.value = "";
     input.focus();
     refreshSetupControls(screen);
@@ -155,10 +165,15 @@ function renderSetup() {
 
   const list = createElement("div", "player-list");
   list.id = "setup-player-list";
-  setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list));
+  if (setupPlayers.length === 0) {
+    list.append(createElement("p", "empty-player-list", "Adicione pelo menos 3 pessoas para começar."));
+  } else {
+    setupPlayers.forEach((_, index) => appendSetupPlayer(screen, index, list));
+    screen.append(createElement("p", "drag-hint", "Arraste para reorganizar"));
+  }
   screen.append(list);
 
-  const nextButton = createButton("Bora organizar", "button", () => renderRoundSetup(), setupPlayers.length < 3);
+  const nextButton = createButton(setupPlayers.length < 3 ? `Bora organizar · faltam ${3 - setupPlayers.length}` : "Bora organizar", "button", () => renderRoundSetup(), setupPlayers.length < 3);
   nextButton.id = "setup-next-button";
   screen.append(nextButton);
   app.replaceChildren(screen);
@@ -256,6 +271,19 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   identity.append(createElement("span", "setup-player-number", String(index + 1).padStart(2, "0")));
   identity.append(createElement("span", "drag-handle", player));
   item.append(identity);
+  const reorderActions = createElement("div", "player-reorder-actions");
+  const moveUpButton = createButton("↑", "icon-button reorder-button", (event) => {
+    event.stopPropagation();
+    movePlayer(index, index - 1);
+  }, index === 0);
+  moveUpButton.setAttribute("aria-label", `Subir ${player}`);
+  const moveDownButton = createButton("↓", "icon-button reorder-button", (event) => {
+    event.stopPropagation();
+    movePlayer(index, index + 1);
+  }, index === setupPlayers.length - 1);
+  moveDownButton.setAttribute("aria-label", `Descer ${player}`);
+  reorderActions.append(moveUpButton, moveDownButton);
+  item.append(reorderActions);
   const removeButton = createButton("", "icon-button trash-button", (event) => {
     event.stopPropagation();
     removePlayer(index);
@@ -328,6 +356,16 @@ function updateSetupList(list) {
     const number = playerCard.querySelector(".setup-player-number");
     if (number) number.textContent = String(index + 1).padStart(2, "0");
   });
+}
+
+function movePlayer(from, to) {
+  if (to < 0 || to >= setupPlayers.length) return;
+  const nextPlayers = [...setupPlayers];
+  [nextPlayers[from], nextPlayers[to]] = [nextPlayers[to], nextPlayers[from]];
+  setupPlayers = nextPlayers;
+  state = createCurrentSetupState(setupPlayers);
+  saveState(state);
+  render();
 }
 
 function refreshSetupControls(screen) {
