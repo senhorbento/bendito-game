@@ -49,20 +49,30 @@ export function createSecrets(players, roles, pair) {
   }));
 }
 
-export function canVote(voterIndex, targetIndex, roles, votes) {
-  return roles[voterIndex] === "regular"
+export function canVote(voterIndex, targetIndex, roles, votes, allowBenditoAttempt = false) {
+  return (roles[voterIndex] === "regular" || allowBenditoAttempt)
     && voterIndex !== targetIndex
     && targetIndex >= 0
     && targetIndex < roles.length
     && votes[voterIndex] === undefined;
 }
 
-export function evaluateVotes(votes, roles) {
-  return votes.map((targetIndex, voterIndex) => ({
-    voterIndex,
-    targetIndex,
-    correct: targetIndex !== undefined && roles[targetIndex] === "bendito"
-  }));
+export function canAttemptWord(voterIndex, roles, wordAttempt) {
+  return roles[voterIndex] === "bendito" && wordAttempt === undefined;
+}
+
+export function evaluateVotes(votes, roles, wordAttempts = [], mainWord = "") {
+  return roles.map((role, voterIndex) => {
+    const targetIndex = votes[voterIndex];
+    const wordAttempt = wordAttempts[voterIndex];
+    return {
+      voterIndex,
+      targetIndex,
+      wordAttempt,
+      correct: targetIndex !== undefined && roles[targetIndex] === "bendito",
+      malandro: role === "bendito" && wordAttempt === mainWord
+    };
+  });
 }
 
 export function getRemainingTime(endsAt, now = Date.now()) {

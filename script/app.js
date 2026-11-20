@@ -1,5 +1,6 @@
-import { categories } from "./word-bank.js";
+import { allPairs, categories, getWordPool } from "./word-bank.js";
 import {
+  canAttemptWord,
   canVote,
   evaluateVotes,
   getBenditoBounds,
@@ -16,6 +17,8 @@ let state = loadState();
 let timerCleanup = null;
 let wakeLock = null;
 let setupPlayers = Array.isArray(state?.players) ? [...state.players] : [];
+let sessionUsedWords = Array.isArray(state?.usedWords) ? [...state.usedWords] : [];
+let sessionLastStarterIndex = Number.isInteger(state?.lastStarterIndex) ? state.lastStarterIndex : null;
 
 if (!isRecoverableState(state)) {
   state = createHomeState(setupPlayers);
@@ -65,6 +68,17 @@ function createButton(text, className = "button", handler, disabled = false) {
   return button;
 }
 
+function goHome() {
+  if (state.phase !== "home" && state.phase !== "setup" && !window.confirm("Voltar para a home e encerrar a rodada?")) return;
+  releaseWakeLock();
+  sessionUsedWords = [];
+  sessionLastStarterIndex = null;
+  state = createHomeState(setupPlayers);
+  clearState();
+  saveState(state);
+  render();
+}
+
 function render() {
   if (timerCleanup) {
     timerCleanup();
@@ -72,12 +86,19 @@ function render() {
   }
   if (state.phase !== "discussion") releaseWakeLock();
   app.replaceChildren();
+  if (state.phase !== "home") appendHomeButton();
   if (state.phase === "home") renderHomeScreen();
   else if (state.phase === "setup") renderSetup();
   else if (state.phase === "reveal") renderReveal();
   else if (state.phase === "discussion") renderDiscussion();
   else if (state.phase === "voting") renderVoting();
   else renderResults();
+}
+
+function appendHomeButton() {
+  const button = createButton("⌂", "home-button", goHome);
+  button.setAttribute("aria-label", "Voltar para a home");
+  app.append(button);
 }
 
 function renderHomeScreen() {
@@ -158,6 +179,26 @@ function renderSetup() {
   countField.append(countLabel, countControl);
   screen.append(countField);
 
+  const modeField = createElement("div", "field");
+  modeField.append(createElement("label", "", "Modo de jogo"));
+  const modeSelect = createElement("select", "select");
+  modeSelect.append(createElement("option", "", "Modo JJ — geral junto"));
+  modeSelect.lastChild.value = "jj";
+  modeSelect.append(createElement("option", "", "Cada um por si"));
+  modeSelect.lastChild.value = "free-for-all";
+  modeSelect.value = state.gameMode || "jj";
+  modeSelect.addEventListener("change", () => { state = { ...state, gameMode: modeSelect.value }; saveState(state); });
+  modeField.append(modeSelect);
+  screen.append(modeField);
+
+  const attemptField = createElement("label", "toggle-field");
+  const attemptInput = document.createElement("input");
+  attemptInput.type = "checkbox";
+  attemptInput.checked = state.allowBenditoAttempt === true;
+  attemptInput.addEventListener("change", () => { state = { ...state, allowBenditoAttempt: attemptInput.checked }; saveState(state); });
+  attemptField.append(attemptInput, createElement("span", "", "Permitir o Bendito dar um palpite na palavra"));
+  screen.append(attemptField);
+
   const categoryField = createElement("div", "field");
   const categoryLabel = createElement("label", "", "Categoria");
   const categorySelect = createElement("select", "select");
@@ -177,11 +218,13 @@ function renderSetup() {
     saveState(state);
   });
   categoryField.append(categoryLabel, categorySelect);
-  screen.append(categoryField);
+  const wordPool = getWordPool(categorySelect.value);
+  screen.append(categoryField, createElement("p", "word-counter", `${sessionUsedWords.length} / ${wordPool.length} palavras usadas`));
 
   const actions = createElement("div", "actions");
   const startButton = createButton("Vamo lá", "button", () => {
-    const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random");
+    const nextState = createRoundState(setupPlayers, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, sessionLastStarterIndex);
+    sessionUsedWords = [...nextState.usedWords];
     updateState(nextState);
   }, setupPlayers.length < 3);
   startButton.id = "setup-start-button";
@@ -303,6 +346,7 @@ function releaseWakeLock() {
 
 function renderDiscussion() {
   const screen = createElement("section", "screen centered");
+  screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${getWordPool(state.categoryKey || "random").length} palavras usadas`));
   screen.append(createElement("h1", "", "Solta a conversa"));
   screen.append(createElement("span", "eyebrow", `Clima da rodada: ${state.categoryLabel}`));
   const starter = createElement("p", "discussion-starter", "Começa falando: ");
@@ -332,15 +376,19 @@ function renderVoting() {
   const voterIsBendito = state.roles[state.votingIndex] === "bendito";
   screen.append(createElement("span", "eyebrow", `Votação ${state.votingIndex + 1} de ${state.players.length}`));
   screen.append(createElement("h1", "", `Vez de ${voter}`));
-  screen.append(createElement("p", "muted", voterIsBendito ? "Você é Bendito. Não precisa votar. Confirme para passar o celular." : "Escolha quem você acha que é Bendito. Seu voto é secreto."));
+  screen.append(createElement("p", "muted", voterIsBendito ? "Se quiser, tenta descobrir a palavra. Seu palpite é secreto." : "Escolha quem você acha que é Bendito. Seu voto é secreto."));
 
-  if (!voterIsBendito) {
+  if (!voterIsBendito || state.allowBenditoAttempt) {
     const voteList = createElement("div", "vote-list");
     let selectedTarget;
-    state.players.forEach((player, index) => {
-      if (index === state.votingIndex) return;
+    let selectedWordAttempt;
+    const options = voterIsBendito ? [state.pair.word, ...allPairs.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
+    options.forEach((optionValue) => {
+      const player = voterIsBendito ? optionValue : optionValue.player;
+      const index = voterIsBendito ? undefined : optionValue.index;
       const option = createButton(player, "vote-option", () => {
-        selectedTarget = index;
+        selectedTarget = voterIsBendito ? undefined : index;
+        selectedWordAttempt = voterIsBendito ? player : undefined;
         [...voteList.children].forEach((child) => {
           child.classList.remove("selected");
           child.blur();
@@ -352,6 +400,11 @@ function renderVoting() {
     });
     screen.append(voteList);
     screen.append(createButton("Confirmar voto", "button", () => {
+      if (voterIsBendito) {
+        if (!canAttemptWord(state.votingIndex, state.roles, state.wordAttempts[state.votingIndex])) return;
+        submitVote(undefined, selectedWordAttempt);
+        return;
+      }
       if (selectedTarget === undefined || !canVote(state.votingIndex, selectedTarget, state.roles, state.votes)) return;
       submitVote(selectedTarget);
     }, false));
@@ -362,12 +415,14 @@ function renderVoting() {
   appendVersionFooter(screen);
 }
 
-function submitVote(targetIndex) {
+function submitVote(targetIndex, wordAttempt) {
   const votes = [...state.votes];
+  const wordAttempts = [...(state.wordAttempts || [])];
   votes[state.votingIndex] = targetIndex;
+  wordAttempts[state.votingIndex] = wordAttempt;
   const nextIndex = state.votingIndex + 1;
-  if (nextIndex >= state.players.length) updateState(completeRound({ ...state, votes, results: evaluateVotes(votes, state.roles), votingReady: false }));
-  else updateState({ ...state, votes, votingIndex: nextIndex, votingReady: false });
+  if (nextIndex >= state.players.length) updateState(completeRound({ ...state, votes, wordAttempts, results: evaluateVotes(votes, state.roles, wordAttempts, state.pair.word), votingReady: false }));
+  else updateState({ ...state, votes, wordAttempts, votingIndex: nextIndex, votingReady: false });
 }
 
 function renderResults() {
@@ -375,10 +430,14 @@ function renderResults() {
   const results = (state.results || []).filter((result) => result.targetIndex !== undefined);
   const correctResults = results.filter((result) => result.correct);
   const incorrectResults = results.filter((result) => !result.correct);
+  const malandroNames = (state.results || []).filter((result) => result.malandro).map((result) => state.players[result.voterIndex]);
+  const wordPool = getWordPool(state.categoryKey || "random");
   const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
 
   screen.append(createElement("span", "eyebrow", "Revelação final"));
+  screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${wordPool.length} palavras usadas`));
   screen.append(createElement("h1", "", "Quem estava no disfarce?"));
+  if (malandroNames.length) screen.append(createElement("p", "result-highlight", `${malandroNames.join(", ")} — Bendito malandro demais`));
 
   const stage = createElement("div", "results-stage");
   stage.append(createResultsPanel("results-correct", "Tirou onda", "police", correctResults.map((result) => state.players[result.voterIndex])));
@@ -387,9 +446,15 @@ function renderResults() {
   screen.append(stage);
 
   const actions = createElement("div", "actions");
-  actions.append(createButton("Vamo de novo", "button", () => updateState(createRoundState(state.players, state.benditoCount, state.categoryKey || "random", state.pair.word))));
+  actions.append(createButton("Vamo de novo", "button", () => {
+    const nextState = createRoundState(state.players, state.benditoCount, state.categoryKey || "random", sessionUsedWords, state.gameMode || "jj", state.allowBenditoAttempt || false, state.lastStarterIndex);
+    sessionUsedWords = [...nextState.usedWords];
+    updateState(nextState);
+  }));
   actions.append(createButton("Chegou mais gente", "button secondary", () => {
     setupPlayers = [...state.players];
+    sessionUsedWords = [];
+    sessionLastStarterIndex = null;
     clearState();
     state = createSetupState(setupPlayers);
     saveState(state);

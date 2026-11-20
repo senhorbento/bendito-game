@@ -1,4 +1,5 @@
 import {
+  canAttemptWord,
   canVote,
   createRoleAssignments,
   evaluateVotes,
@@ -23,6 +24,8 @@ const tests = [
   ["assigns the requested Benditos", () => createRoleAssignments(5, 2).filter((role) => role === "bendito").length === 2],
   ["blocks self voting", () => !canVote(0, 0, ["regular", "bendito"], [])],
   ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"])[0].correct],
+  ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
+  ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
   ["calculates remaining time", () => getRemainingTime(1500, 1000) === 500],
   ["selects a discussion starter", () => {
     const round = createRoundState(["Ana", "Bia", "Caio"], 1);

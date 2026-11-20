@@ -47,7 +47,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--yellow); outline-offset: 4px; }
 
 .app-shell { width: 100%; min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
-.screen { position: relative; width: min(100%, 760px); min-height: calc(100svh - 40px); margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: clamp(24px, 5vw, 52px) clamp(18px, 6vw, 58px); overflow: hidden; border: 1px solid rgba(255, 244, 232, .14); border-radius: 36px; background: linear-gradient(145deg, rgba(35, 27, 52, .9), rgba(23, 21, 34, .82)); box-shadow: var(--shadow); backdrop-filter: blur(18px); animation: screen-in .42s ease both; }
+.screen { position: relative; width: min(100%, 760px); min-height: calc(100svh - 40px); margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding: clamp(18px, 4vw, 36px) clamp(12px, 3vw, 32px); overflow: hidden; border: 1px solid rgba(255, 244, 232, .14); border-radius: 36px; background: linear-gradient(145deg, rgba(35, 27, 52, .9), rgba(23, 21, 34, .82)); box-shadow: var(--shadow); backdrop-filter: blur(18px); animation: screen-in .42s ease both; }
 .screen::before, .screen::after { content: ""; position: absolute; pointer-events: none; z-index: 0; }
 .screen::before { width: 260px; height: 260px; top: -145px; right: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 135, 61, .24), transparent 68%); }
 .screen::after { width: 240px; height: 240px; right: -105px; bottom: -100px; background: url("../assets/digital-scribble.svg") center / contain no-repeat; opacity: .4; }
@@ -74,6 +74,11 @@ h2 { font-size: 1.5rem; }
 .home-screen .button { min-width: min(100%, 250px); font-size: 1.15rem; }
 .home-how-to-play { max-width: 30ch; color: var(--muted); white-space: pre-line; font-size: .98rem; line-height: 1.45; }
 .app-version { display: block; margin-top: auto; color: rgba(255, 244, 232, .48); font-size: .72rem; letter-spacing: .08em; text-align: center; }
+.home-button { position: fixed; z-index: 5; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); width: 42px; height: 42px; padding: 0; border: 1px solid rgba(255, 244, 232, .2); border-radius: 50%; color: var(--white); background: rgba(23, 21, 34, .8); box-shadow: 0 8px 20px rgba(0, 0, 0, .25); font-size: 1.35rem; }
+.word-counter { color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-align: center; }
+.toggle-field { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .86rem; }
+.toggle-field input { width: 20px; height: 20px; accent-color: var(--pink); }
+.result-highlight { width: 100%; padding: 8px 10px; color: var(--yellow); border: 1px solid rgba(249, 214, 92, .25); border-radius: 12px; background: rgba(249, 214, 92, .08); text-align: center; }
 .discussion-starter { color: var(--yellow); font-size: clamp(1.1rem, 4vw, 1.5rem); }
 .discussion-starter strong { color: var(--white); font-weight: 900; }
 .input, .select { width: 100%; min-height: 56px; padding: 14px 16px; color: var(--white); background: rgba(255, 244, 232, .07); border: 1px solid rgba(255, 244, 232, .18); border-radius: 17px; box-shadow: inset 0 1px rgba(255, 255, 255, .06); }
@@ -108,7 +113,7 @@ h2 { font-size: 1.5rem; }
 .results-screen h1 { max-width: 760px; }
 .results-stage { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(230px, 1.25fr) minmax(150px, 1fr); align-items: end; gap: clamp(14px, 3vw, 32px); width: 100%; margin-top: 6px; }
 .results-side-panel, .results-malandro { display: flex; flex-direction: column; align-items: center; min-width: 0; text-align: center; }
-.results-side-panel { gap: 10px; padding: 16px 12px; border: 1px solid rgba(255, 244, 232, .12); border-radius: 26px; background: linear-gradient(160deg, rgba(255, 244, 232, .08), rgba(255, 244, 232, .025)); }
+.results-side-panel { gap: 7px; padding: 9px 8px; border: 1px solid rgba(255, 244, 232, .12); border-radius: 26px; background: linear-gradient(160deg, rgba(255, 244, 232, .08), rgba(255, 244, 232, .025)); }
 .results-correct { border-color: rgba(98, 227, 192, .32); }
 .results-incorrect { border-color: rgba(255, 107, 125, .3); }
 .results-panel-title { color: var(--white); font-size: 1rem; letter-spacing: -.02em; }
@@ -118,10 +123,10 @@ h2 { font-size: 1.5rem; }
 .result-name, .results-empty { max-width: 100%; padding: 7px 10px; border-radius: 999px; color: var(--white); background: rgba(255, 244, 232, .1); font-size: .84rem; font-weight: 700; overflow-wrap: anywhere; }
 .results-empty { color: var(--muted); font-weight: 500; }
 .results-malandro { gap: 5px; padding-bottom: 4px; }
-.results-malandro .results-character { transform: scale(1.18); margin-block: 12px 18px; }
+.results-malandro .results-character { transform: scale(1.1); margin-block: 4px 8px; }
 .results-role { color: var(--yellow); font-size: .78rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
 .results-bendito-name { max-width: 100%; color: var(--white); font-size: clamp(1.2rem, 4vw, 1.7rem); overflow-wrap: anywhere; }
-.results-character { width: 128px; height: 160px; flex: 0 0 auto; filter: drop-shadow(0 14px 10px rgba(0, 0, 0, .35)); }
+.results-character { width: 100px; height: 124px; flex: 0 0 auto; filter: drop-shadow(0 14px 10px rgba(0, 0, 0, .35)); }
 .results-character img { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; animation: sprite-idle 2.4s ease-in-out infinite; }
 .character-police img { animation-delay: -.8s; }
 .character-otario img { animation-delay: -1.5s; }
@@ -147,7 +152,10 @@ h2 { font-size: 1.5rem; }
   .results-correct, .results-incorrect { grid-column: 1; }
   .results-correct { grid-row: 2; }
   .results-incorrect { grid-row: 3; }
-  .results-side-panel { padding-block: 12px; }
+  .results-side-panel { padding-block: 8px; }
+  .screen { gap: 12px; }
+  .secret-card { min-height: min(280px, 36vh); padding: 20px; }
+  .vote-option { padding: 13px 14px; }
 }
 @media (orientation: landscape) and (max-height: 600px) {
   .screen { min-height: calc(100svh - 20px); padding-block: 20px; }

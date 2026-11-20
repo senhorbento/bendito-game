@@ -270,6 +270,12 @@ export const animals = [
 -   Votes and assignments remain private until the results screen.
 -   The results screen identifies every Bendito and every participant
     who voted correctly.
+-   Voting is always individual. In the group mode, participants still vote
+    independently; the mode changes the result interpretation rather than
+    merging votes into one collective action.
+-   A Bendito may vote from the normal voting screen when the optional
+    malandro attempt is enabled. If the Bendito identifies the main word
+    correctly, the results must show the feedback "Bendito malandro demais".
 -   The results screen uses a visual three-part composition: an original
     retro 8-bit malandro sprite in the center with the Bendito name below, an
     original police sprite on the left with correct voters, and an original
@@ -279,6 +285,12 @@ export const animals = [
     landscape layouts.
 -   The result characters should have subtle idle movement while visible, with
     reduced-motion support and no impact on result data or game rules.
+-   Result panels should use compact dimensions on mobile to reduce excessive
+    vertical scrolling and preserve the character composition.
+-   The main screen surface and decorative background treatment should avoid
+    excessive empty space, especially on mobile. Reduce vertical and horizontal
+    surface padding, artwork scale, or decorative area when needed while
+    preserving readability.
 
 ## 8. Persistence and Recovery
 
@@ -408,6 +420,21 @@ The following decisions are explicit requirements:
     may increase it with the interface controls within valid bounds: 3
     participants allow only 1 Bendito, and larger groups increase the
     maximum while always keeping at least one regular player.
+-   The game offers a group mode and a free-for-all mode. Both modes use
+    individual votes; the selected mode is persisted with the active round.
+-   The setup flow offers an optional setting that allows Benditos to attempt
+    the main word during their normal voting turn. The attempt presents the
+    main word alongside five other choices and remains private until results.
+-   A game session begins when a round is started and ends when the user
+    returns to the participant setup screen. Returning to participant setup
+    resets the session's used-word history.
+-   During a session, the interface displays the used-word counter as
+    `used / available`. Random mode draws a pair from the complete word bank
+    across all categories, not by first selecting one category. A fixed
+    category draws only from that category and displays its own
+    `used / available` counter.
+-   A word pair already used in the active session must not be selected again
+    while another valid pair remains available.
 -   There is no fixed maximum number of participants. The interface must
     remain usable with long participant lists through appropriate scrolling
     and layout behavior.

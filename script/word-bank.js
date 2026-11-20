@@ -14,15 +14,15 @@ export const categories = {
   objects: { label: "Objetos", pairs: objects }
 };
 
-export function selectCategory(categoryKey = "random") {
-  const keys = Object.keys(categories);
-  const selectedKey = categoryKey === "random" ? keys[Math.floor(Math.random() * keys.length)] : categoryKey;
-  return { key: selectedKey, ...categories[selectedKey] };
+export const allPairs = Object.entries(categories).flatMap(([key, category]) => category.pairs.map((pair) => ({ ...pair, categoryKey: key, categoryLabel: category.label })));
+
+export function getWordPool(categoryKey = "random") {
+  return categoryKey === "random" ? allPairs : (categories[categoryKey]?.pairs || []).map((pair) => ({ ...pair, categoryKey, categoryLabel: categories[categoryKey].label }));
 }
 
-export function selectWordPair(categoryKey = "random", previousWord = "") {
-  const category = selectCategory(categoryKey);
-  const availablePairs = category.pairs.filter((pair) => pair.word !== previousWord);
-  const pool = availablePairs.length > 0 ? availablePairs : category.pairs;
-  return { category, pair: pool[Math.floor(Math.random() * pool.length)] };
+export function selectWordPair(categoryKey = "random", usedWords = [], random = Math.random) {
+  const pool = getWordPool(categoryKey);
+  const availablePairs = pool.filter((pair) => !usedWords.includes(pair.word));
+  const candidates = availablePairs.length > 0 ? availablePairs : pool;
+  return candidates[Math.floor(random() * candidates.length)];
 }
