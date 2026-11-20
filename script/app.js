@@ -261,12 +261,13 @@ function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-pl
   identity.append(createElement("span", "setup-player-number", String(index + 1).padStart(2, "0")));
   identity.append(createElement("span", "drag-handle", player));
   item.append(identity);
-  const removeButton = createButton("▣", "icon-button trash-button", (event) => {
+  const removeButton = createButton("", "icon-button trash-button", (event) => {
     event.stopPropagation();
     removePlayer(index);
   }, false);
   removeButton.setAttribute("aria-label", `Remover ${player}`);
   removeButton.title = "Remover participante";
+  removeButton.append(createElement("span", "trash-icon", ""));
   item.append(removeButton);
   let pointerId = null;
   let draggedIndex = null;

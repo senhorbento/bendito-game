@@ -101,7 +101,11 @@ h2 { font-size: 1.5rem; }
 .setup-player-card:active, .setup-player-card.dragging { cursor: grabbing; }
 .setup-player-card.dragging { opacity: .72; border-color: var(--pink); box-shadow: var(--glow-pink); }
 .player-drag-ghost { min-height: 61px; border: 2px dashed var(--pink); border-radius: 22px; color: var(--pink); background: rgba(255, 79, 163, .12); box-shadow: inset 0 0 22px rgba(255, 79, 163, .12); display: grid; place-items: center; font-weight: 800; letter-spacing: .04em; pointer-events: none; }
-.trash-button { color: var(--danger) !important; border-color: rgba(255, 107, 125, .35) !important; font-size: 1.15rem; }
+.trash-button { position: relative; display: grid; place-items: center; color: var(--danger) !important; border-color: rgba(255, 107, 125, .35) !important; }
+.trash-icon, .trash-icon::before, .trash-icon::after { display: block; }
+.trash-icon { position: relative; width: 15px; height: 16px; border: 2px solid currentColor; border-top: 0; border-radius: 0 0 3px 3px; }
+.trash-icon::before { content: ""; position: absolute; top: -5px; left: -3px; width: 17px; height: 2px; border-radius: 2px; background: currentColor; }
+.trash-icon::after { content: ""; position: absolute; top: -8px; left: 2px; width: 7px; height: 3px; border: 2px solid currentColor; border-bottom: 0; border-radius: 3px 3px 0 0; }
 .setup-players-screen, .setup-options-screen { gap: 14px; }
 .setup-options-screen .actions { margin-top: auto; }
 .setup-options-screen .number-control { align-self: flex-start; }
