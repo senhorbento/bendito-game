@@ -4,4 +4,4 @@ export const places = [
   ["Restaurante","Cardápio"],["Mercado","Compras"],["Padaria","Pães"],["Fazenda","Colheita"],["Parque","Brinquedos"],["Zoológico","Animais"],["Aquário","Peixes"],["Aeroporto","Viagem"],["Estação","Trilhos"],["Porto","Navios"],
   ["Farol","Luz"],["Ponte","Travessia"],["Praça","Encontro"],["Igreja","Sinos"],["Templo","Sagrado"],["Pirâmide","Egito"],["Metrô","Subterrâneo"],["Shopping","Lojas"],["Academia","Exercício"],["Camping","Barraca"],
   ["Acampamento","Fogueira"],["Rodoviária","Ônibus"],["Embaixada","Diplomacia"],["Universidade","Campus"],["Oficina","Ferramentas"],["Estúdio","Gravação"],["Galeria","Quadros"],["Mirante","Vista"],["Pousada","Descanso"],["Hotel","Quarto"]
-].map(([word, clue]) => ({ word, clues: [clue, `Relacionado a ${word}`, `Associado a ${word}`] }));
+].map(([word, clue]) => ({ word, clues: [clue, "Ligado", "Contexto"] }));

@@ -4,4 +4,4 @@ export const movies = [
   ["Robô","Metal"],["Dragão","Fogo"],["Vampiro","Mordida"],["Zumbi","Mortos"],["Pirata","Navio"],["Detetive","Pista"],["Astronauta","Espaço"],["Monstro","Criatura"],["Alienígena","Planeta"],["Dinossauro","Fóssil"],
   ["Vilão","Mal"],["Herói","Coragem"],["Princesa","Coroa"],["Múmia","Sarcófago"],["Fantasma","Assombração"],["Bruxa","Feitiço"],["Ninja","Sombra"],["Agente","Missão"],["Cientista","Laboratório"],["Cavaleiro","Armadura"],
   ["Diretor","Câmera"],["Ator","Cena"],["Roteiro","História"],["Trilha sonora","Música"],["Cinema","Tela"],["Oscar","Estatueta"],["Trailer","Prévia"],["Sequência","Continuação"],["Remake","Releitura"],["Créditos","Encerramento"]
-].map(([word, clue]) => ({ word, clues: [clue, `Relacionado a ${word}`, `Associado a ${word}`] }));
+].map(([word, clue]) => ({ word, clues: [clue, "Ligado", "Contexto"] }));
