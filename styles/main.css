@@ -98,7 +98,8 @@ h2 { font-size: 1.5rem; }
 .drag-handle { cursor: grab; font-weight: 800; }
 .setup-player-card .icon-button { color: var(--yellow); border-color: rgba(249, 214, 92, .28); }
 .setup-player-card { cursor: grab; touch-action: none; user-select: none; }
-.setup-player-card:active { cursor: grabbing; }
+.setup-player-card:active, .setup-player-card.dragging { cursor: grabbing; }
+.setup-player-card.dragging { border-color: var(--pink); box-shadow: var(--glow-pink); }
 .trash-button { color: var(--danger) !important; border-color: rgba(255, 107, 125, .35) !important; font-size: 1.15rem; }
 .setup-players-screen, .setup-options-screen { gap: 14px; }
 .setup-options-screen .actions { margin-top: auto; }

@@ -255,32 +255,49 @@ function renderRoundSetup() {
 function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list")) {
   const player = setupPlayers[index];
   const item = createElement("article", "player-item setup-player-card");
-  item.draggable = true;
   item.dataset.index = index;
   const identity = createElement("span", "setup-player-identity");
   identity.append(createElement("span", "setup-player-number", String(index + 1).padStart(2, "0")));
   identity.append(createElement("span", "drag-handle", player));
   item.append(identity);
-  const removeButton = createButton("▣", "icon-button trash-button", () => removePlayer(index), false);
+  const removeButton = createButton("▣", "icon-button trash-button", (event) => {
+    event.stopPropagation();
+    removePlayer(index);
+  }, false);
   removeButton.setAttribute("aria-label", `Remover ${player}`);
   removeButton.title = "Remover participante";
   item.append(removeButton);
-  item.addEventListener("dragstart", (event) => {
+  let pointerId = null;
+  let draggedIndex = null;
+  let hasMoved = false;
+  item.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target.closest("button")) return;
+    pointerId = event.pointerId;
+    draggedIndex = index;
+    hasMoved = false;
+    item.setPointerCapture(pointerId);
+  });
+  item.addEventListener("pointermove", (event) => {
+    if (event.pointerId !== pointerId || draggedIndex === null) return;
+    if (!hasMoved && Math.abs(event.movementX) + Math.abs(event.movementY) < 4) return;
+    hasMoved = true;
     item.classList.add("dragging");
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", String(index));
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".setup-player-card");
+    if (!target || target === item) return;
+    const targetIndex = Number(target.dataset.index);
+    if (!Number.isInteger(targetIndex) || targetIndex === draggedIndex) return;
+    reorderPlayer(draggedIndex, targetIndex);
+    draggedIndex = targetIndex;
   });
-  item.addEventListener("dragend", () => item.classList.remove("dragging"));
-  item.addEventListener("dragover", (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  });
-  item.addEventListener("drop", (event) => {
-    event.preventDefault();
-    const draggedItem = list.querySelector(".dragging");
-    const draggedIndex = draggedItem ? Number(draggedItem.dataset.index) : Number(event.dataTransfer.getData("text/plain"));
-    if (Number.isInteger(draggedIndex) && draggedIndex !== index) reorderPlayer(draggedIndex, index);
-  });
+  const finishPointerDrag = (event) => {
+    if (event.pointerId !== pointerId) return;
+    item.classList.remove("dragging");
+    if (item.hasPointerCapture(pointerId)) item.releasePointerCapture(pointerId);
+    pointerId = null;
+    draggedIndex = null;
+  };
+  item.addEventListener("pointerup", finishPointerDrag);
+  item.addEventListener("pointercancel", finishPointerDrag);
   list.append(item);
 }
 
