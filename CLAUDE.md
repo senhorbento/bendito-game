@@ -406,7 +406,7 @@ When working on this project:
     bug fix. Every frontend change must update the version in the same
     change, and a bug fix must include a regression test that reproduces the
     failure and verifies the correction. Verify the version and tests before
-    publishing. The current application version is `1.5.1` unless the
+    publishing. The current application version is `1.5.2` unless the
     project owner specifies another baseline.
 14. Do not generate or rewrite this `CLAUDE.md` unless explicitly asked
     by the project owner.
