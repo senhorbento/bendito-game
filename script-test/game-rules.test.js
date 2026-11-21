@@ -39,7 +39,7 @@ const tests = [
   }],
   ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],
   ["keeps every category between fifty and one hundred words", () => Object.values(categories).every(({ pairs }) => pairs.length >= 50 && pairs.length <= 100)],
-  ["keeps three distinct one-word clues on every word", () => allPairs.every(({ word, clues }) => clues.length === 3 && new Set(clues).size === 3 && clues.every((clue) => /^\S+$/.test(clue) && clue.toLocaleLowerCase() !== word.toLocaleLowerCase()))],
+  ["keeps three distinct meaningful one-word clues on every word", () => allPairs.every(({ word, clues }) => clues.length === 3 && new Set(clues).size === 3 && clues.every((clue) => /^\S+$/.test(clue) && !["Ligado", "Contexto", "Relação"].includes(clue) && clue.toLocaleLowerCase() !== word.toLocaleLowerCase()))],
   ["selects a clue using the supplied random function", () => {
     const pair = allPairs[0];
     return selectClue(pair, () => 0) === pair.clues[0] && selectClue(pair, () => 0.99) === pair.clues[2];

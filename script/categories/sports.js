@@ -4,4 +4,4 @@ export const sports = [
   ["Handebol","Quadra"],["Boliche","Pinos"],["Sinuca","Taco"],["Damas","Tabuleiro"],["Xadrez","Xeque"],["Pôquer","Cartas"],["Dardo","Mira"],["Bilhar","Caçapa"],["Corrida","Velocidade"],["Rali","Estrada"],
   ["Fórmula 1","Pódio"],["Motocross","Lama"],["Escalada","Parede"],["Patinação","Gelo"],["Esqui","Neve"],["Snowboard","Montanha"],["Triatlo","Resistência"],["Maratona","Distância"],["Pentatlo","Provas"],["Canoagem","Remo"],
   ["Polo aquático","Bola"],["Críquete","Taco"],["Hóquei","Gelo"],["Curling","Pedra"],["Badminton","Peteca"],["Peteca","Pluma"],["Bocha","Esfera"],["Slackline","Equilíbrio"],["Parkour","Obstáculos"],["Paraquedismo","Salto"]
-].map(([word, clue]) => ({ word, clues: [clue, "Ligado", "Contexto"] }));
+].map(([word, clue]) => ({ word, clues: [clue, "Atleta", "Competição"] }));
