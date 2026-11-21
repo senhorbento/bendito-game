@@ -21,6 +21,7 @@ const contracts = [
   ["results expose word and clue containers", () => document.querySelector(".results-word-reveal") === null || Boolean(document.querySelector(".results-word") && document.querySelector(".results-clue"))],
   ["results allow vertical scrolling", () => document.querySelector(".results-screen") === null || getComputedStyle(document.querySelector(".results-screen")).overflowY === "auto"],
   ["results remove trailing footer space", () => document.querySelector(".results-screen") === null || getComputedStyle(document.querySelector(".results-screen")).paddingBottom === "0px"],
+  ["screen headings support focus", () => [...document.querySelectorAll(".screen h1")].every((heading) => heading.tabIndex === -1)],
   ["shared screen helpers remain available", () => typeof document.createElement === "function"],
   ["test runner remains browser compatible", () => typeof document.createElement === "function"]
 ];

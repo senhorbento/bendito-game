@@ -1,4 +1,4 @@
-import { appendVersionFooter, createButton, createElement } from "./screen-helpers.js";
+import { appendVersionFooter, createButton, createElement, focusPrimaryHeading } from "./screen-helpers.js";
 
 export function renderHomeScreen({ app, version, onStart }) {
   const screen = createElement("section", "screen centered home-screen");
@@ -16,4 +16,5 @@ export function renderHomeScreen({ app, version, onStart }) {
   screen.append(createButton("Jogar", "button", onStart));
   app.append(screen);
   appendVersionFooter(screen, version);
+  focusPrimaryHeading(screen);
 }

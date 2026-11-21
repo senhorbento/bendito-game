@@ -1,4 +1,4 @@
-import { appendVersionFooter, createButton, createElement } from "./screen-helpers.js";
+import { appendVersionFooter, createButton, createElement, focusPrimaryHeading } from "./screen-helpers.js";
 
 export function renderResultsScreen({ app, state, version, wordPoolLength, onReplay, onPlayers }) {
   const screen = createElement("section", "screen results-screen");
@@ -27,6 +27,7 @@ export function renderResultsScreen({ app, state, version, wordPoolLength, onRep
   screen.append(actions);
   app.append(screen);
   appendVersionFooter(screen, version);
+  focusPrimaryHeading(screen);
 }
 
 function createResultsPanel(className, title, characterType, names) {

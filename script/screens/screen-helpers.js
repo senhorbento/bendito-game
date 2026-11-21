@@ -16,3 +16,10 @@ export function createButton(text, className = "button", handler, disabled = fal
 export function appendVersionFooter(screen, version) {
   screen.append(createElement("small", "app-version", `BENDITO · versão ${version}`));
 }
+
+export function focusPrimaryHeading(screen) {
+  const heading = screen.querySelector("h1");
+  if (!heading) return;
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
+}

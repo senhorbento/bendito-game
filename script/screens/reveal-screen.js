@@ -1,4 +1,4 @@
-import { appendVersionFooter, createButton, createElement } from "./screen-helpers.js";
+import { appendVersionFooter, createButton, createElement, focusPrimaryHeading } from "./screen-helpers.js";
 
 export function renderRevealScreen({ app, state, version, onReveal, onNext }) {
   const screen = createElement("section", "screen centered");
@@ -22,4 +22,5 @@ export function renderRevealScreen({ app, state, version, onReveal, onNext }) {
   if (state.revealShown) screen.append(createButton(state.revealIndex === state.players.length - 1 ? "Hora da resenha" : "Peguei a visão", "button", onNext));
   app.append(screen);
   appendVersionFooter(screen, version);
+  focusPrimaryHeading(screen);
 }

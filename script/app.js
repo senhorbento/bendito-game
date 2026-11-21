@@ -17,7 +17,7 @@ import { renderHomeScreen as renderHomeScreenModule } from "./screens/home-scree
 import { renderRevealScreen } from "./screens/reveal-screen.js";
 import { renderDiscussionScreen } from "./screens/discussion-screen.js";
 import { renderResultsScreen } from "./screens/results-screen.js";
-import { appendVersionFooter, createButton, createElement } from "./screens/screen-helpers.js";
+import { appendVersionFooter, createButton, createElement, focusPrimaryHeading } from "./screens/screen-helpers.js";
 
 const app = document.querySelector("#app");
 let state = loadState();
@@ -175,6 +175,7 @@ function renderSetup() {
   screen.append(nextButton);
   app.replaceChildren(screen);
   appendVersionFooter(screen, APP_VERSION);
+  focusPrimaryHeading(screen);
 }
 
 function renderRoundSetup() {
@@ -265,6 +266,7 @@ function renderRoundSetup() {
   screen.append(actions);
   app.replaceChildren(screen);
   appendVersionFooter(screen, APP_VERSION);
+  focusPrimaryHeading(screen);
 }
 
 function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list")) {
@@ -426,6 +428,7 @@ function renderVoting() {
     screen.append(createElement("p", "muted", "Passe o celular para esta pessoa.") , createButton("Votar", "button", () => updateState(beginVotingStep(state))));
     app.append(screen);
     appendVersionFooter(screen, APP_VERSION);
+    focusPrimaryHeading(screen);
     return;
   }
   const voterIsBendito = state.roles[state.votingIndex] === "bendito";
@@ -472,6 +475,7 @@ function renderVoting() {
   }
   app.append(screen);
   appendVersionFooter(screen, APP_VERSION);
+  focusPrimaryHeading(screen);
 }
 
 function renderGroupVoting() {
@@ -498,6 +502,7 @@ function renderGroupVoting() {
   }));
   app.append(screen);
   appendVersionFooter(screen, APP_VERSION);
+  focusPrimaryHeading(screen);
 }
 
 function submitVote(targetIndexes, wordAttempt) {
