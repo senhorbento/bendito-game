@@ -38,11 +38,16 @@ document.addEventListener("visibilitychange", () => {
 function isRecoverableState(candidate) {
   if (!candidate || typeof candidate !== "object") return false;
   if (!["home", "setup", "reveal", "discussion", "voting", "results"].includes(candidate.phase)) return false;
-  if (!Array.isArray(candidate.players)) return false;
+  if (!Array.isArray(candidate.players) || candidate.players.some((player) => typeof player !== "string" || !player.trim())) return false;
   if (candidate.phase === "home") return true;
-  if (candidate.phase === "setup") return true;
+  if (candidate.phase === "setup") {
+    return typeof candidate.categoryKey === "string"
+      && typeof candidate.gameMode === "string"
+      && Number.isInteger(candidate.benditoCount);
+  }
   return Array.isArray(candidate.roles)
     && candidate.roles.length === candidate.players.length
+    && candidate.roles.every((role) => role === "regular" || role === "bendito")
     && Array.isArray(candidate.secrets)
     && candidate.secrets.length === candidate.players.length
     && candidate.pair
@@ -50,9 +55,14 @@ function isRecoverableState(candidate) {
     && typeof candidate.pair.clue === "string"
     && Array.isArray(candidate.pair.clues)
     && candidate.pair.clues.length === 3
-    && (candidate.phase === "setup" || typeof candidate.categoryKey === "string")
+    && typeof candidate.categoryKey === "string"
+    && Number.isInteger(candidate.benditoCount)
+    && Array.isArray(candidate.votes)
+    && Array.isArray(candidate.wordAttempts)
+    && (candidate.phase !== "reveal" || Number.isInteger(candidate.revealIndex))
     && (candidate.phase !== "discussion" || Number.isInteger(candidate.starterIndex))
-    && (candidate.phase !== "voting" || typeof candidate.votingReady === "boolean");
+    && (candidate.phase !== "voting" || typeof candidate.votingReady === "boolean")
+    && (candidate.phase !== "voting" || Number.isInteger(candidate.votingIndex));
 }
 
 function updateState(nextState) {
