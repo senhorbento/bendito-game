@@ -46,7 +46,7 @@ button, input, select { font: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--yellow); outline-offset: 4px; }
 
-.app-shell { width: 100%; min-height: 100svh; padding: max(26px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.app-shell { width: 100%; min-height: 100svh; padding: 0; }
 .screen { position: relative; width: min(100%, 760px); height: calc(100svh - 44px); min-height: 0; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding: clamp(24px, 5vw, 42px) clamp(12px, 3vw, 32px) clamp(16px, 3vw, 28px); overflow: hidden; border: 0; border-radius: 0; background: linear-gradient(145deg, rgba(35, 27, 52, .9), rgba(23, 21, 34, .82)); box-shadow: none; backdrop-filter: blur(18px); animation: screen-in .42s ease both; }
 .screen::before, .screen::after { content: ""; position: absolute; pointer-events: none; z-index: 0; }
 .screen::before { width: 260px; height: 260px; top: -145px; right: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 135, 61, .24), transparent 68%); }
@@ -73,7 +73,7 @@ h2 { font-size: 1.5rem; }
 .button:disabled { cursor: not-allowed; opacity: .35; transform: none; box-shadow: none; }
 .home-screen .button { min-width: min(100%, 250px); font-size: 1.15rem; }
 .home-how-to-play { max-width: 30ch; color: var(--muted); white-space: pre-line; font-size: .98rem; line-height: 1.45; }
-.app-version { display: block; margin-top: auto; color: rgba(255, 244, 232, .48); font-size: .72rem; letter-spacing: .08em; text-align: center; }
+.app-version { display: block; margin-top: 0; color: rgba(255, 244, 232, .48); font-size: .72rem; letter-spacing: .08em; text-align: center; }
 .home-button { position: fixed; z-index: 5; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); width: 42px; height: 42px; padding: 0; border: 1px solid rgba(255, 244, 232, .2); border-radius: 50%; color: var(--white); background: rgba(23, 21, 34, .8); box-shadow: 0 8px 20px rgba(0, 0, 0, .25); font-size: 1.35rem; }
 .word-counter { color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-align: center; }
 .toggle-field { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .86rem; }
