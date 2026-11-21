@@ -67,7 +67,7 @@ export function canAttemptWord(voterIndex, roles, wordAttempt) {
   return roles[voterIndex] === "bendito" && wordAttempt === undefined;
 }
 
-export function evaluateVotes(votes, roles, wordAttempts = [], mainWord = "") {
+export function evaluateVotes(votes, roles, benditoCount = roles.filter((role) => role === "bendito").length, wordAttempts = [], mainWord = "") {
   return roles.map((role, voterIndex) => {
     const targetIndexes = normalizeTargetIndexes(votes[voterIndex]);
     const wordAttempt = wordAttempts[voterIndex];
@@ -75,7 +75,7 @@ export function evaluateVotes(votes, roles, wordAttempts = [], mainWord = "") {
       voterIndex,
       targetIndexes,
       wordAttempt,
-      correct: targetIndexes.length > 0 && targetIndexes.every((target) => roles[target] === "bendito"),
+      correct: targetIndexes.length === benditoCount && targetIndexes.every((target) => roles[target] === "bendito"),
       malandro: role === "bendito" && wordAttempt === mainWord
     };
   });

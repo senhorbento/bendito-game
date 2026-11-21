@@ -29,8 +29,10 @@ const tests = [
   ["keeps one regular player", () => getBenditoBounds(5).max === 4],
   ["assigns the requested Benditos", () => createRoleAssignments(5, 2).filter((role) => role === "bendito").length === 2],
   ["blocks self voting", () => !canVote(0, 0, ["regular", "bendito"], [])],
-  ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"])[0].correct],
-  ["evaluates a correct multi-target vote", () => evaluateVotes([[1, 2]], ["regular", "bendito", "bendito"])[0].correct],
+  ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"], 1)[0].correct],
+  ["evaluates a correct multi-target vote", () => evaluateVotes([[1, 2]], ["regular", "bendito", "bendito"], 2)[0].correct],
+  ["rejects an incomplete multi-target vote", () => !evaluateVotes([[1]], ["regular", "bendito", "bendito"], 2)[0].correct],
+  ["assigns every requested Bendito", () => createRoleAssignments(5, 2, () => 0.5).filter((role) => role === "bendito").length === 2],
   ["normalizes single and multiple vote targets", () => normalizeTargetIndexes(1).join() === "1" && normalizeTargetIndexes([1, 2]).join() === "1,2" && normalizeTargetIndexes(undefined).length === 0],
   ["defines a persisted state schema version", () => STATE_SCHEMA_VERSION === 2],
   ["keeps round options in setup phase", () => updateRoundOptions({ phase: "setup", gameMode: "jj" }, { gameMode: "free-for-all" }).phase === "setup"],
@@ -41,7 +43,7 @@ const tests = [
   ["normalizes words for category validation", () => normalizeWord("  Árvore ") === "arvore"],
   ["validates the complete word bank", () => validateWordBank(categories)],
   ["rejects duplicate targets in a multi-target vote", () => !canVote(0, [1, 1], ["regular", "bendito"], [])],
-  ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
+  ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], 1, ["Girafa"], "Girafa")[0].malandro],
   ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
   ["calculates remaining time", () => getRemainingTime(1500, 1000) === 500],
   ["formats timer values consistently", () => formatRemainingTime(120000) === "02:00" && formatRemainingTime(0) === "00:00"],
@@ -66,7 +68,7 @@ const tests = [
     const roles = ["regular", "bendito", "regular"];
     const consensusTarget = 1;
     const votes = roles.map((role) => role === "regular" ? consensusTarget : undefined);
-    const results = evaluateVotes(votes, roles, [], "Pizza");
+    const results = evaluateVotes(votes, roles, 1, [], "Pizza");
     return results.filter((result) => result.targetIndexes.length > 0).length === 2 && results.filter((result) => result.targetIndexes.length > 0).every((result) => result.correct);
   }],
   ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],

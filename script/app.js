@@ -498,7 +498,7 @@ function renderGroupVoting() {
   screen.append(createButton("Confirmar consenso", "button", () => {
     if (!hasRequiredTargets(selectedTargets, state.benditoCount)) return;
     const votes = state.roles.map((role) => role === "regular" ? [...selectedTargets] : undefined);
-    updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, [], state.pair.word) }));
+    updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, state.benditoCount, [], state.pair.word) }));
   }));
   app.append(screen);
   appendVersionFooter(screen, APP_VERSION);
@@ -511,7 +511,7 @@ function submitVote(targetIndexes, wordAttempt) {
   votes[state.votingIndex] = targetIndexes === undefined ? undefined : [...targetIndexes];
   wordAttempts[state.votingIndex] = wordAttempt;
   const nextIndex = state.votingIndex + 1;
-  if (nextIndex >= state.players.length) updateState(completeRound({ ...state, votes, wordAttempts, results: evaluateVotes(votes, state.roles, wordAttempts, state.pair.word), votingReady: false }));
+  if (nextIndex >= state.players.length) updateState(completeRound({ ...state, votes, wordAttempts, results: evaluateVotes(votes, state.roles, state.benditoCount, wordAttempts, state.pair.word), votingReady: false }));
   else updateState({ ...state, votes, wordAttempts, votingIndex: nextIndex, votingReady: false });
 }
 
