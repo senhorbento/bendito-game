@@ -9,6 +9,7 @@ const contracts = [
   }],
   ["version footer is present", () => app.querySelector(".app-version")?.textContent.startsWith("BENDITO · versão ")],
   ["results expose word and clue containers", () => document.querySelector(".results-word-reveal") === null || Boolean(document.querySelector(".results-word") && document.querySelector(".results-clue"))],
+  ["results allow vertical scrolling", () => document.querySelector(".results-screen") === null || getComputedStyle(document.querySelector(".results-screen")).overflowY === "auto"],
   ["test runner remains browser compatible", () => typeof document.createElement === "function"]
 ];
 
