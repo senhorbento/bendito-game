@@ -9,6 +9,7 @@ import {
   validateName
 } from "../script/game-rules.js";
 import { beginVotingStep, createRoundState, startDiscussion, startVoting } from "../script/game-state.js";
+import { STATE_SCHEMA_VERSION } from "../script/persistence.js";
 import { categories, allPairs, selectClue } from "../script/word-bank.js";
 import { getDefaultBenditoCount } from "../script/game-rules.js";
 
@@ -28,6 +29,7 @@ const tests = [
   ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"])[0].correct],
   ["evaluates a correct multi-target vote", () => evaluateVotes([[1, 2]], ["regular", "bendito", "bendito"])[0].correct],
   ["normalizes single and multiple vote targets", () => normalizeTargetIndexes(1).join() === "1" && normalizeTargetIndexes([1, 2]).join() === "1,2" && normalizeTargetIndexes(undefined).length === 0],
+  ["defines a persisted state schema version", () => STATE_SCHEMA_VERSION === 2],
   ["rejects duplicate targets in a multi-target vote", () => !canVote(0, [1, 1], ["regular", "bendito"], [])],
   ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
   ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
