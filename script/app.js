@@ -352,7 +352,7 @@ function updateBenditoCount(count) {
   if (count < bounds.min || count > bounds.max) return;
   state = createCurrentSetupState(setupPlayers, count);
   saveState(state);
-  render();
+  renderRoundSetup();
 }
 
 function removePlayer(index) {
