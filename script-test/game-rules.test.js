@@ -45,6 +45,13 @@ const tests = [
     const round = createRoundState(["Ana", "Bia", "Caio"], 1, "random", [], "free-for-all", true);
     return round.gameMode === "free-for-all" && round.allowBenditoAttempt === true;
   }],
+  ["represents JJ as one consensus vote for regular players", () => {
+    const roles = ["regular", "bendito", "regular"];
+    const consensusTarget = 1;
+    const votes = roles.map((role) => role === "regular" ? consensusTarget : undefined);
+    const results = evaluateVotes(votes, roles, [], "Pizza");
+    return results.filter((result) => result.targetIndex !== undefined).length === 2 && results.filter((result) => result.targetIndex !== undefined).every((result) => result.correct);
+  }],
   ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],
   ["keeps every category between fifty and one hundred words", () => Object.values(categories).every(({ pairs }) => pairs.length >= 50 && pairs.length <= 100)],
   ["keeps category keys in the class naming pattern", () => Object.keys(categories).every((key) => /^[a-z][A-Za-z0-9]*$/.test(key))],

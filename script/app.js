@@ -475,38 +475,28 @@ function renderVoting() {
 
 function renderGroupVoting() {
   const screen = createElement("section", "screen centered");
-  const selections = new Map();
+  let selectedTarget;
   screen.append(createElement("span", "eyebrow", "Votação em grupo"));
-  screen.append(createElement("h1", "", "Todo mundo vota agora"));
-  screen.append(createElement("p", "muted", "Cada pessoa escolhe em segredo quem acha que é BENDITO. O BENDITO não vota no modo JJ."));
+  screen.append(createElement("h1", "", "Cheguem em um consenso"));
+  screen.append(createElement("p", "muted", "Todos discutem e escolhem um único nome. Todos os participantes aparecem na votação."));
 
-  const voterList = createElement("div", "group-vote-list");
-  state.players.forEach((player, voterIndex) => {
-    if (state.roles[voterIndex] === "bendito") return;
-    const field = createElement("label", "group-vote-field");
-    field.append(createElement("span", "group-vote-label", player));
-    const select = createElement("select", "select group-vote-select");
-    select.setAttribute("aria-label", `Voto secreto de ${player}`);
-    select.append(createElement("option", "", "Escolha um nome"));
-    state.players.forEach((target, targetIndex) => {
-      if (targetIndex === voterIndex) return;
-      const option = createElement("option", "", target);
-      option.value = String(targetIndex);
-      select.append(option);
+  const voteList = createElement("div", "vote-list");
+  state.players.forEach((player, targetIndex) => {
+    const option = createButton(player, "vote-option", () => {
+      selectedTarget = targetIndex;
+      [...voteList.children].forEach((child) => {
+        child.classList.remove("selected");
+        child.blur();
+      });
+      option.classList.add("selected");
+      option.focus();
     });
-    select.addEventListener("change", () => {
-      if (select.value === "") selections.delete(voterIndex);
-      else selections.set(voterIndex, Number(select.value));
-    });
-    field.append(select);
-    voterList.append(field);
+    voteList.append(option);
   });
-  screen.append(voterList);
-  screen.append(createButton("Confirmar votação", "button", () => {
-    const requiredVotes = state.roles.filter((role) => role === "regular").length;
-    if (selections.size !== requiredVotes) return;
-    const votes = [];
-    selections.forEach((targetIndex, voterIndex) => { votes[voterIndex] = targetIndex; });
+  screen.append(voteList);
+  screen.append(createButton("Confirmar consenso", "button", () => {
+    if (selectedTarget === undefined) return;
+    const votes = state.roles.map((role) => role === "regular" ? selectedTarget : undefined);
     updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, [], state.pair.word) }));
   }));
   app.append(screen);
