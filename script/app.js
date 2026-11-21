@@ -8,7 +8,7 @@ import {
   getRemainingTime,
   validateName
 } from "./game-rules.js";
-import { beginVotingStep, createHomeState, createRoundState, createSetupState, completeRound, startDiscussion, startVoting } from "./game-state.js";
+import { beginVotingStep, createHomeState, createRoundState, createSetupState, completeRound, startDiscussion, startVoting, updateRoundOptions, updateSetupState } from "./game-state.js";
 import { clearState, loadState, saveState } from "./persistence.js";
 import { formatRemainingTime, startTimer } from "./timer.js";
 import { APP_VERSION } from "./version.js";
@@ -165,7 +165,7 @@ function renderSetup() {
       return;
     }
     setupPlayers = [...setupPlayers, input.value.trim().replace(/\s+/g, " ")];
-    state = createSetupState(setupPlayers, state.categoryKey || "random", state.gameMode || "jj", state.allowBenditoAttempt || false, sessionUsedWords, sessionLastStarterIndex);
+    state = updateSetupState(createSetupState(setupPlayers, state.categoryKey || "random", state.gameMode || "jj", state.allowBenditoAttempt || false, sessionUsedWords, sessionLastStarterIndex), { players: [...setupPlayers] });
     saveState(state);
     appendSetupPlayer(screen, setupPlayers.length - 1);
     updatePlayerSummary();
@@ -225,7 +225,7 @@ function renderRoundSetup() {
   });
   modeSelect.value = state.gameMode || "jj";
   modeSelect.addEventListener("change", () => {
-    state = { ...state, gameMode: modeSelect.value, allowBenditoAttempt: modeSelect.value === "free-for-all" ? true : false };
+    state = updateRoundOptions(state, { gameMode: modeSelect.value, allowBenditoAttempt: modeSelect.value === "free-for-all" });
     saveState(state);
     renderRoundSetup();
   });
@@ -260,7 +260,7 @@ function renderRoundSetup() {
     wordCounter.textContent = `${sessionUsedWords.length} / ${getWordPool(categorySelect.value).length} palavras usadas`;
   };
   categorySelect.addEventListener("change", () => {
-    state = { ...state, categoryKey: categorySelect.value };
+    state = updateRoundOptions(state, { categoryKey: categorySelect.value });
     saveState(state);
     updateWordCounter();
   });

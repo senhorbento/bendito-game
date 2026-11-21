@@ -62,3 +62,11 @@ export function beginVotingStep(state) {
 export function completeRound(state) {
   return { ...state, phase: "results" };
 }
+
+export function updateSetupState(state, changes = {}) {
+  return { ...state, phase: "setup", ...changes };
+}
+
+export function updateRoundOptions(state, changes = {}) {
+  return updateSetupState(state, changes);
+}
