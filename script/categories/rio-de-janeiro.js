@@ -15,7 +15,7 @@ export const rioDeJaneiro = [
   { word: 'Jardim Botânico', clues: ['Palmeiras', 'Plantas', "Bairro"] },
   { word: 'Quinta da Boa Vista', clues: ['Museu', 'Parque', "Bairro"] },
   { word: 'Museu do Amanhã', clues: ['Futuro', 'Porto', "Bairro"] },
-  { word: 'AquaRio', clues: ['Aquário', 'Peixes', "Bairro"] },
+  { word: 'AquaRio', clues: ['Aquário', 'Peixes', "Porto"] },
   { word: 'Museu Nacional', clues: ['História', 'Quinta', "Bairro"] },
   { word: 'Pedra da Gávea', clues: ['Montanha', 'Trilha', "Bairro"] },
   { word: 'Pedra Bonita', clues: ['Parapente', 'Vista', "Bairro"] },
