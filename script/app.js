@@ -211,7 +211,11 @@ function renderRoundSetup() {
     modeSelect.append(option);
   });
   modeSelect.value = state.gameMode || "jj";
-  modeSelect.addEventListener("change", () => { state = { ...state, gameMode: modeSelect.value }; saveState(state); });
+  modeSelect.addEventListener("change", () => {
+    state = { ...state, gameMode: modeSelect.value, allowBenditoAttempt: modeSelect.value === "free-for-all" ? true : false };
+    saveState(state);
+    renderRoundSetup();
+  });
   modeField.append(modeSelect);
   screen.append(modeField);
 
@@ -219,9 +223,10 @@ function renderRoundSetup() {
   const attemptInput = document.createElement("input");
   attemptInput.type = "checkbox";
   attemptInput.setAttribute("aria-label", "Permitir o BENDITO se salvar");
-  attemptInput.checked = state.allowBenditoAttempt === true;
-  attemptInput.addEventListener("change", () => { state = { ...state, allowBenditoAttempt: attemptInput.checked }; saveState(state); });
-  attemptField.append(attemptInput, createElement("span", "", "Permitir o BENDITO se salvar"));
+  attemptInput.checked = state.gameMode === "free-for-all" && state.allowBenditoAttempt === true;
+  attemptInput.disabled = state.gameMode === "jj";
+  attemptInput.addEventListener("change", () => { state = { ...state, allowBenditoAttempt: state.gameMode === "free-for-all" && attemptInput.checked }; saveState(state); });
+  attemptField.append(attemptInput, createElement("span", "", state.gameMode === "jj" ? "BENDITO não pode se salvar no modo JJ" : "Permitir o BENDITO se salvar"));
   screen.append(attemptField);
 
   const categoryField = createElement("div", "field");
@@ -411,6 +416,10 @@ function renderDiscussion() {
 }
 
 function renderVoting() {
+  if (state.gameMode === "jj") {
+    renderGroupVoting();
+    return;
+  }
   const screen = createElement("section", "screen centered");
   const voter = state.players[state.votingIndex];
   if (!state.votingReady) {
@@ -460,6 +469,46 @@ function renderVoting() {
   } else {
     screen.append(createButton("Entendi, passar o celular", "button", () => submitVote(undefined)));
   }
+  app.append(screen);
+  appendVersionFooter(screen);
+}
+
+function renderGroupVoting() {
+  const screen = createElement("section", "screen centered");
+  const selections = new Map();
+  screen.append(createElement("span", "eyebrow", "Votação em grupo"));
+  screen.append(createElement("h1", "", "Todo mundo vota agora"));
+  screen.append(createElement("p", "muted", "Cada pessoa escolhe em segredo quem acha que é BENDITO. O BENDITO não vota no modo JJ."));
+
+  const voterList = createElement("div", "group-vote-list");
+  state.players.forEach((player, voterIndex) => {
+    if (state.roles[voterIndex] === "bendito") return;
+    const field = createElement("label", "group-vote-field");
+    field.append(createElement("span", "group-vote-label", player));
+    const select = createElement("select", "select group-vote-select");
+    select.setAttribute("aria-label", `Voto secreto de ${player}`);
+    select.append(createElement("option", "", "Escolha um nome"));
+    state.players.forEach((target, targetIndex) => {
+      if (targetIndex === voterIndex) return;
+      const option = createElement("option", "", target);
+      option.value = String(targetIndex);
+      select.append(option);
+    });
+    select.addEventListener("change", () => {
+      if (select.value === "") selections.delete(voterIndex);
+      else selections.set(voterIndex, Number(select.value));
+    });
+    field.append(select);
+    voterList.append(field);
+  });
+  screen.append(voterList);
+  screen.append(createButton("Confirmar votação", "button", () => {
+    const requiredVotes = state.roles.filter((role) => role === "regular").length;
+    if (selections.size !== requiredVotes) return;
+    const votes = [];
+    selections.forEach((targetIndex, voterIndex) => { votes[voterIndex] = targetIndex; });
+    updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, [], state.pair.word) }));
+  }));
   app.append(screen);
   appendVersionFooter(screen);
 }

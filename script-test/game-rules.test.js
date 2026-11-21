@@ -37,6 +37,14 @@ const tests = [
     const voting = startVoting(round);
     return voting.votingReady === false && beginVotingStep(voting).votingReady === true;
   }],
+  ["keeps JJ rounds unable to use Bendito attempts", () => {
+    const round = createRoundState(["Ana", "Bia", "Caio"], 1, "random", [], "jj", false);
+    return round.gameMode === "jj" && round.allowBenditoAttempt === false;
+  }],
+  ["enables Bendito attempts by default in free-for-all", () => {
+    const round = createRoundState(["Ana", "Bia", "Caio"], 1, "random", [], "free-for-all", true);
+    return round.gameMode === "free-for-all" && round.allowBenditoAttempt === true;
+  }],
   ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],
   ["keeps every category between fifty and one hundred words", () => Object.values(categories).every(({ pairs }) => pairs.length >= 50 && pairs.length <= 100)],
   ["keeps category keys in the class naming pattern", () => Object.keys(categories).every((key) => /^[a-z][A-Za-z0-9]*$/.test(key))],
