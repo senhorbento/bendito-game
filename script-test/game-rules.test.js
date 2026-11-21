@@ -12,6 +12,7 @@ import { beginVotingStep, createRoundState, startDiscussion, startVoting, update
 import { STATE_SCHEMA_VERSION } from "../script/persistence.js";
 import { getEligibleTargets, getWordAttemptOptions, hasRequiredTargets, toggleTarget } from "../script/voting-rules.js";
 import { normalizeWord, validateWordBank } from "../script/word-bank-validation.js";
+import { formatRemainingTime } from "../script/timer.js";
 import { categories, allPairs, selectClue } from "../script/word-bank.js";
 import { getDefaultBenditoCount } from "../script/game-rules.js";
 
@@ -43,6 +44,7 @@ const tests = [
   ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
   ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
   ["calculates remaining time", () => getRemainingTime(1500, 1000) === 500],
+  ["formats timer values consistently", () => formatRemainingTime(120000) === "02:00" && formatRemainingTime(0) === "00:00"],
   ["selects a discussion starter", () => {
     const round = createRoundState(["Ana", "Bia", "Caio"], 1);
     return startDiscussion(round, 1000, () => 0.99).starterIndex === 2;
