@@ -308,7 +308,10 @@ function movePlayer(from, to) {
 
 function refreshSetupControls(screen) {
   const nextButton = screen.querySelector("#setup-next-button");
-  if (nextButton) nextButton.disabled = setupPlayers.length < 3;
+  if (!nextButton) return;
+  const remainingPlayers = Math.max(0, 3 - setupPlayers.length);
+  nextButton.disabled = remainingPlayers > 0;
+  nextButton.textContent = remainingPlayers > 0 ? `Bora organizar · faltam ${remainingPlayers}` : "Bora organizar";
 }
 
 function createCurrentSetupState(players, benditoCount = state.benditoCount) {
