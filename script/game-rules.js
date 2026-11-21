@@ -50,10 +50,11 @@ export function createSecrets(players, roles, pair) {
 }
 
 export function canVote(voterIndex, targetIndex, roles, votes, allowBenditoAttempt = false) {
+  const targets = Array.isArray(targetIndex) ? targetIndex : [targetIndex];
   return (roles[voterIndex] === "regular" || allowBenditoAttempt)
-    && voterIndex !== targetIndex
-    && targetIndex >= 0
-    && targetIndex < roles.length
+    && targets.length > 0
+    && new Set(targets).size === targets.length
+    && targets.every((target) => voterIndex !== target && target >= 0 && target < roles.length)
     && votes[voterIndex] === undefined;
 }
 
@@ -64,12 +65,13 @@ export function canAttemptWord(voterIndex, roles, wordAttempt) {
 export function evaluateVotes(votes, roles, wordAttempts = [], mainWord = "") {
   return roles.map((role, voterIndex) => {
     const targetIndex = votes[voterIndex];
+    const targets = Array.isArray(targetIndex) ? targetIndex : [targetIndex];
     const wordAttempt = wordAttempts[voterIndex];
     return {
       voterIndex,
       targetIndex,
       wordAttempt,
-      correct: targetIndex !== undefined && roles[targetIndex] === "bendito",
+      correct: targets.length > 0 && targets.every((target) => roles[target] === "bendito"),
       malandro: role === "bendito" && wordAttempt === mainWord
     };
   });

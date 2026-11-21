@@ -437,22 +437,26 @@ function renderVoting() {
 
   if (!voterIsBendito || state.allowBenditoAttempt) {
     const voteList = createElement("div", "vote-list");
-    let selectedTarget;
+    let selectedTargets = [];
     let selectedWordAttempt;
     const wordPool = getWordPool(state.categoryKey || "random");
     const options = voterIsBendito ? [state.pair.word, ...wordPool.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
+    const targetLimit = state.benditoCount;
     options.forEach((optionValue) => {
       const player = voterIsBendito ? optionValue : optionValue.player;
       const index = voterIsBendito ? undefined : optionValue.index;
       const option = createButton(player, "vote-option", () => {
-        selectedTarget = voterIsBendito ? undefined : index;
-        selectedWordAttempt = voterIsBendito ? player : undefined;
-        [...voteList.children].forEach((child) => {
-          child.classList.remove("selected");
-          child.blur();
-        });
-        option.classList.add("selected");
-        option.focus();
+        if (voterIsBendito) {
+          selectedWordAttempt = player;
+          [...voteList.children].forEach((child) => child.classList.remove("selected"));
+          option.classList.add("selected");
+          option.focus();
+          return;
+        }
+        if (selectedTargets.includes(index)) selectedTargets = selectedTargets.filter((target) => target !== index);
+        else if (selectedTargets.length < targetLimit) selectedTargets = [...selectedTargets, index];
+        option.classList.toggle("selected", selectedTargets.includes(index));
+        option.blur();
       });
       voteList.append(option);
     });
@@ -463,8 +467,8 @@ function renderVoting() {
         submitVote(undefined, selectedWordAttempt);
         return;
       }
-      if (selectedTarget === undefined || !canVote(state.votingIndex, selectedTarget, state.roles, state.votes)) return;
-      submitVote(selectedTarget);
+      if (selectedTargets.length !== targetLimit || !canVote(state.votingIndex, selectedTargets, state.roles, state.votes)) return;
+      submitVote(selectedTargets);
     }, false));
   } else {
     screen.append(createButton("Entendi, passar o celular", "button", () => submitVote(undefined)));
@@ -475,28 +479,25 @@ function renderVoting() {
 
 function renderGroupVoting() {
   const screen = createElement("section", "screen centered");
-  let selectedTarget;
+  let selectedTargets = [];
   screen.append(createElement("span", "eyebrow", "Votação em grupo"));
   screen.append(createElement("h1", "", "Cheguem em um consenso"));
-  screen.append(createElement("p", "muted", "Todos discutem e escolhem um único nome. Todos os participantes aparecem na votação."));
+  screen.append(createElement("p", "muted", `Escolham ${state.benditoCount} nome${state.benditoCount > 1 ? "s" : ""} em consenso. Todos os participantes aparecem na votação.`));
 
   const voteList = createElement("div", "vote-list");
   state.players.forEach((player, targetIndex) => {
     const option = createButton(player, "vote-option", () => {
-      selectedTarget = targetIndex;
-      [...voteList.children].forEach((child) => {
-        child.classList.remove("selected");
-        child.blur();
-      });
-      option.classList.add("selected");
-      option.focus();
+      if (selectedTargets.includes(targetIndex)) selectedTargets = selectedTargets.filter((target) => target !== targetIndex);
+      else if (selectedTargets.length < state.benditoCount) selectedTargets = [...selectedTargets, targetIndex];
+      option.classList.toggle("selected", selectedTargets.includes(targetIndex));
+      option.blur();
     });
     voteList.append(option);
   });
   screen.append(voteList);
   screen.append(createButton("Confirmar consenso", "button", () => {
-    if (selectedTarget === undefined) return;
-    const votes = state.roles.map((role) => role === "regular" ? selectedTarget : undefined);
+    if (selectedTargets.length !== state.benditoCount) return;
+    const votes = state.roles.map((role) => role === "regular" ? selectedTargets : undefined);
     updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, [], state.pair.word) }));
   }));
   app.append(screen);

@@ -25,6 +25,8 @@ const tests = [
   ["assigns the requested Benditos", () => createRoleAssignments(5, 2).filter((role) => role === "bendito").length === 2],
   ["blocks self voting", () => !canVote(0, 0, ["regular", "bendito"], [])],
   ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"])[0].correct],
+  ["evaluates a correct multi-target vote", () => evaluateVotes([[1, 2]], ["regular", "bendito", "bendito"])[0].correct],
+  ["rejects duplicate targets in a multi-target vote", () => !canVote(0, [1, 1], ["regular", "bendito"], [])],
   ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
   ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
   ["calculates remaining time", () => getRemainingTime(1500, 1000) === 500],
