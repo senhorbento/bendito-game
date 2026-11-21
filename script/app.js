@@ -193,10 +193,13 @@ function renderRoundSetup() {
   const currentCount = Math.min(Math.max(Number(state.benditoCount) || getDefaultBenditoCount(setupPlayers.length), bounds.min), bounds.max);
   const countValue = createElement("output", "count-value", bounds.max > 0 ? String(currentCount) : "—");
   countValue.setAttribute("aria-live", "polite");
-  const decrementButton = createButton("−", "icon-button", () => updateBenditoCount(currentCount - 1), bounds.max === 0 || currentCount <= bounds.min);
+  const controls = { countValue };
+  const decrementButton = createButton("−", "icon-button", () => updateBenditoCount(Number(countValue.textContent) - 1, controls), bounds.max === 0 || currentCount <= bounds.min);
   decrementButton.setAttribute("aria-label", "Diminuir quantidade de BENDITOS");
-  const incrementButton = createButton("+", "icon-button", () => updateBenditoCount(currentCount + 1), bounds.max === 0 || currentCount >= bounds.max);
+  const incrementButton = createButton("+", "icon-button", () => updateBenditoCount(Number(countValue.textContent) + 1, controls), bounds.max === 0 || currentCount >= bounds.max);
   incrementButton.setAttribute("aria-label", "Aumentar quantidade de BENDITOS");
+  controls.decrementButton = decrementButton;
+  controls.incrementButton = incrementButton;
   countControl.append(decrementButton, countValue, incrementButton);
   countField.append(countLabel, countControl);
   screen.append(countField);
@@ -347,12 +350,15 @@ function reorderPlayer(from, to) {
   render();
 }
 
-function updateBenditoCount(count) {
+function updateBenditoCount(count, controls = null) {
   const bounds = getBenditoBounds(setupPlayers.length);
   if (count < bounds.min || count > bounds.max) return;
   state = createCurrentSetupState(setupPlayers, count);
   saveState(state);
-  renderRoundSetup();
+  if (!controls) return;
+  controls.countValue.textContent = String(count);
+  controls.decrementButton.disabled = count <= bounds.min;
+  controls.incrementButton.disabled = count >= bounds.max;
 }
 
 function removePlayer(index) {

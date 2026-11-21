@@ -8,6 +8,14 @@ const contracts = [
     return !button || button.textContent === "Bora organizar" || button.textContent === `Bora organizar · faltam ${Math.max(0, 3 - document.querySelectorAll(".setup-player-card").length)}`;
   }],
   ["setup options expose Bendito count controls", () => document.querySelector(".setup-options-screen") === null || Boolean(document.querySelector('[aria-label="Aumentar quantidade de BENDITOS"]'))],
+  ["setup options keep the same screen while changing Bendito count", () => document.querySelector(".setup-options-screen") === null || (() => {
+    const screen = document.querySelector(".setup-options-screen");
+    const button = screen.querySelector('[aria-label="Aumentar quantidade de BENDITOS"]');
+    if (button.disabled) return true;
+    const initialScreen = screen;
+    button.click();
+    return document.querySelector(".setup-options-screen") === initialScreen;
+  })()],
   ["version footer is present", () => app.querySelector(".app-version")?.textContent.startsWith("BENDITO · versão ")],
   ["main has no outer padding", () => getComputedStyle(app).padding === "0px"],
   ["results expose word and clue containers", () => document.querySelector(".results-word-reveal") === null || Boolean(document.querySelector(".results-word") && document.querySelector(".results-clue"))],
