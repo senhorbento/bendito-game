@@ -13,8 +13,9 @@ const contracts = [
     const button = screen.querySelector('[aria-label="Aumentar quantidade de BENDITOS"]');
     if (button.disabled) return true;
     const initialScreen = screen;
+    const initialCount = screen.querySelector(".count-value").textContent;
     button.click();
-    return document.querySelector(".setup-options-screen") === initialScreen;
+    return document.querySelector(".setup-options-screen") === initialScreen && Number(screen.querySelector(".count-value").textContent) === Number(initialCount) + 1;
   })()],
   ["version footer is present", () => app.querySelector(".app-version")?.textContent.startsWith("BENDITO · versão ")],
   ["main has no outer padding", () => getComputedStyle(app).padding === "0px"],

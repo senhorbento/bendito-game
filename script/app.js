@@ -258,7 +258,7 @@ function renderRoundSetup() {
 
   const actions = createElement("div", "actions");
   actions.append(createButton("Partiu", "button", () => {
-    const nextState = createRoundState(setupPlayers, currentCount, categorySelect.value, sessionUsedWords, modeSelect.value, attemptInput.checked, sessionLastStarterIndex);
+    const nextState = createRoundState(setupPlayers, Number(countValue.textContent), categorySelect.value, sessionUsedWords, modeSelect.value, attemptInput.checked, sessionLastStarterIndex);
     sessionUsedWords = [...nextState.usedWords];
     updateState(nextState);
   }));
