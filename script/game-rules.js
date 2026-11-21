@@ -49,8 +49,13 @@ export function createSecrets(players, roles, pair) {
   }));
 }
 
-export function canVote(voterIndex, targetIndex, roles, votes, allowBenditoAttempt = false) {
-  const targets = Array.isArray(targetIndex) ? targetIndex : [targetIndex];
+export function normalizeTargetIndexes(targetIndexes) {
+  if (targetIndexes === undefined) return [];
+  return Array.isArray(targetIndexes) ? [...targetIndexes] : [targetIndexes];
+}
+
+export function canVote(voterIndex, targetIndexes, roles, votes, allowBenditoAttempt = false) {
+  const targets = normalizeTargetIndexes(targetIndexes);
   return (roles[voterIndex] === "regular" || allowBenditoAttempt)
     && targets.length > 0
     && new Set(targets).size === targets.length
@@ -64,14 +69,13 @@ export function canAttemptWord(voterIndex, roles, wordAttempt) {
 
 export function evaluateVotes(votes, roles, wordAttempts = [], mainWord = "") {
   return roles.map((role, voterIndex) => {
-    const targetIndex = votes[voterIndex];
-    const targets = Array.isArray(targetIndex) ? targetIndex : [targetIndex];
+    const targetIndexes = normalizeTargetIndexes(votes[voterIndex]);
     const wordAttempt = wordAttempts[voterIndex];
     return {
       voterIndex,
-      targetIndex,
+      targetIndexes,
       wordAttempt,
-      correct: targets.length > 0 && targets.every((target) => roles[target] === "bendito"),
+      correct: targetIndexes.length > 0 && targetIndexes.every((target) => roles[target] === "bendito"),
       malandro: role === "bendito" && wordAttempt === mainWord
     };
   });

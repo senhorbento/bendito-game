@@ -1,6 +1,7 @@
 import {
   canAttemptWord,
   canVote,
+  normalizeTargetIndexes,
   createRoleAssignments,
   evaluateVotes,
   getBenditoBounds,
@@ -26,6 +27,7 @@ const tests = [
   ["blocks self voting", () => !canVote(0, 0, ["regular", "bendito"], [])],
   ["evaluates a correct vote", () => evaluateVotes([1], ["regular", "bendito"])[0].correct],
   ["evaluates a correct multi-target vote", () => evaluateVotes([[1, 2]], ["regular", "bendito", "bendito"])[0].correct],
+  ["normalizes single and multiple vote targets", () => normalizeTargetIndexes(1).join() === "1" && normalizeTargetIndexes([1, 2]).join() === "1,2" && normalizeTargetIndexes(undefined).length === 0],
   ["rejects duplicate targets in a multi-target vote", () => !canVote(0, [1, 1], ["regular", "bendito"], [])],
   ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
   ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
@@ -52,7 +54,7 @@ const tests = [
     const consensusTarget = 1;
     const votes = roles.map((role) => role === "regular" ? consensusTarget : undefined);
     const results = evaluateVotes(votes, roles, [], "Pizza");
-    return results.filter((result) => result.targetIndex !== undefined).length === 2 && results.filter((result) => result.targetIndex !== undefined).every((result) => result.correct);
+    return results.filter((result) => result.targetIndexes.length > 0).length === 2 && results.filter((result) => result.targetIndexes.length > 0).every((result) => result.correct);
   }],
   ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],
   ["keeps every category between fifty and one hundred words", () => Object.values(categories).every(({ pairs }) => pairs.length >= 50 && pairs.length <= 100)],

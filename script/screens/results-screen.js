@@ -2,7 +2,7 @@ import { appendVersionFooter, createButton, createElement } from "./screen-helpe
 
 export function renderResultsScreen({ app, state, version, wordPoolLength, onReplay, onPlayers }) {
   const screen = createElement("section", "screen results-screen");
-  const results = (state.results || []).filter((result) => result.targetIndex !== undefined);
+  const results = (state.results || []).filter((result) => result.targetIndexes?.length);
   const correctResults = results.filter((result) => result.correct);
   const incorrectResults = results.filter((result) => !result.correct);
   const malandroNames = (state.results || []).filter((result) => result.malandro).map((result) => state.players[result.voterIndex]);
