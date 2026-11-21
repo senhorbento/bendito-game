@@ -12,6 +12,7 @@ import { beginVotingStep, createHomeState, createRoundState, createSetupState, c
 import { clearState, loadState, saveState } from "./persistence.js";
 import { formatRemainingTime, startTimer } from "./timer.js";
 import { APP_VERSION } from "./version.js";
+import { getEligibleTargets, getWordAttemptOptions, hasRequiredTargets, toggleTarget } from "./voting-rules.js";
 import { renderHomeScreen as renderHomeScreenModule } from "./screens/home-screen.js";
 import { renderRevealScreen } from "./screens/reveal-screen.js";
 import { renderDiscussionScreen } from "./screens/discussion-screen.js";
@@ -437,7 +438,7 @@ function renderVoting() {
     let selectedTargets = [];
     let selectedWordAttempt;
     const wordPool = getWordPool(state.categoryKey || "random");
-    const options = voterIsBendito ? [state.pair.word, ...wordPool.filter((pair) => pair.word !== state.pair.word).sort(() => Math.random() - 0.5).slice(0, 5).map((pair) => pair.word)] : state.players.map((player, index) => ({ player, index })).filter(({ index }) => index !== state.votingIndex);
+    const options = voterIsBendito ? getWordAttemptOptions(state.pair.word, wordPool) : getEligibleTargets(state.players, state.votingIndex);
     const targetLimit = state.benditoCount;
     options.forEach((optionValue) => {
       const player = voterIsBendito ? optionValue : optionValue.player;
@@ -450,8 +451,7 @@ function renderVoting() {
           option.focus();
           return;
         }
-        if (selectedTargets.includes(index)) selectedTargets = selectedTargets.filter((target) => target !== index);
-        else if (selectedTargets.length < targetLimit) selectedTargets = [...selectedTargets, index];
+        selectedTargets = toggleTarget(selectedTargets, index, targetLimit);
         option.classList.toggle("selected", selectedTargets.includes(index));
         option.blur();
       });
@@ -464,7 +464,7 @@ function renderVoting() {
         submitVote(undefined, selectedWordAttempt);
         return;
       }
-      if (selectedTargets.length !== targetLimit || !canVote(state.votingIndex, selectedTargets, state.roles, state.votes)) return;
+      if (!hasRequiredTargets(selectedTargets, targetLimit) || !canVote(state.votingIndex, selectedTargets, state.roles, state.votes)) return;
       submitVote(selectedTargets);
     }, false));
   } else {
@@ -484,8 +484,7 @@ function renderGroupVoting() {
   const voteList = createElement("div", "vote-list");
   state.players.forEach((player, targetIndex) => {
     const option = createButton(player, "vote-option", () => {
-      if (selectedTargets.includes(targetIndex)) selectedTargets = selectedTargets.filter((target) => target !== targetIndex);
-      else if (selectedTargets.length < state.benditoCount) selectedTargets = [...selectedTargets, targetIndex];
+      selectedTargets = toggleTarget(selectedTargets, targetIndex, state.benditoCount);
       option.classList.toggle("selected", selectedTargets.includes(targetIndex));
       option.blur();
     });
@@ -493,7 +492,7 @@ function renderGroupVoting() {
   });
   screen.append(voteList);
   screen.append(createButton("Confirmar consenso", "button", () => {
-    if (selectedTargets.length !== state.benditoCount) return;
+    if (!hasRequiredTargets(selectedTargets, state.benditoCount)) return;
     const votes = state.roles.map((role) => role === "regular" ? [...selectedTargets] : undefined);
     updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, [], state.pair.word) }));
   }));

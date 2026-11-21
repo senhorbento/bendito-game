@@ -10,6 +10,7 @@ import {
 } from "../script/game-rules.js";
 import { beginVotingStep, createRoundState, startDiscussion, startVoting, updateRoundOptions } from "../script/game-state.js";
 import { STATE_SCHEMA_VERSION } from "../script/persistence.js";
+import { getEligibleTargets, getWordAttemptOptions, hasRequiredTargets, toggleTarget } from "../script/voting-rules.js";
 import { categories, allPairs, selectClue } from "../script/word-bank.js";
 import { getDefaultBenditoCount } from "../script/game-rules.js";
 
@@ -31,6 +32,10 @@ const tests = [
   ["normalizes single and multiple vote targets", () => normalizeTargetIndexes(1).join() === "1" && normalizeTargetIndexes([1, 2]).join() === "1,2" && normalizeTargetIndexes(undefined).length === 0],
   ["defines a persisted state schema version", () => STATE_SCHEMA_VERSION === 2],
   ["keeps round options in setup phase", () => updateRoundOptions({ phase: "setup", gameMode: "jj" }, { gameMode: "free-for-all" }).phase === "setup"],
+  ["builds voting targets without the voter", () => getEligibleTargets(["Ana", "Bia", "Caio"], 1).length === 2],
+  ["limits multi-target selection", () => toggleTarget([1], 2, 2).join() === "1,2" && toggleTarget([1, 2], 0, 2).join() === "1,2"],
+  ["requires the configured number of targets", () => hasRequiredTargets([1, 2], 2) && !hasRequiredTargets([1], 2)],
+  ["keeps the main word in Bendito attempt options", () => getWordAttemptOptions("Pizza", [{ word: "Pizza" }, { word: "Massa" }], () => 0).includes("Pizza")],
   ["rejects duplicate targets in a multi-target vote", () => !canVote(0, [1, 1], ["regular", "bendito"], [])],
   ["recognizes a Bendito word attempt", () => evaluateVotes([undefined], ["bendito"], ["Girafa"], "Girafa")[0].malandro],
   ["allows a Bendito attempt only once", () => canAttemptWord(0, ["bendito"], undefined) && !canAttemptWord(0, ["bendito"], "Girafa")],
