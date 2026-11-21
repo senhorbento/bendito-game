@@ -231,14 +231,22 @@ Implement the following screen sequence.
 -   After participant setup, allow the user to select exactly one category
     or choose the random category option. Persist the selected mode for the
     active round and use it when starting a new round.
+-   Each category must not contain repeated main words, including duplicates
+    that differ only by capitalization, accents, or surrounding whitespace.
 -   Each entry must associate one main word with exactly three distinct related
     clues, without being identical to or an obvious spelling variation of the
     main word.
--   Keep the data structure consistent across categories.
+-   The three clues in every entry must be different from one another and must
+    each contain exactly one word.
+-   Keep the data structure and class naming consistent across categories.
 -   Select a valid word/clue pair and randomly select one of its three clues for
     each round.
 -   Avoid selecting a clue that is identical to, or an obvious spelling
     variation of, the main word.
+-   Use English `camelCase` keys for category classes and JavaScript exports;
+    use Brazilian Portuguese only for visible category labels. Class keys must
+    be lowercase at the start, contain no spaces, accents, hyphens, or
+    underscores, and remain stable when a label changes.
 -   Make it straightforward to add new categories and entries without
     changing the game engine.
 -   The game must work without an external API.

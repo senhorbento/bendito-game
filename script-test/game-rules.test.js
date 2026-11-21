@@ -39,6 +39,11 @@ const tests = [
   }],
   ["keeps exactly ten categories", () => Object.keys(categories).length === 10 && Boolean(categories.rioDeJaneiro)],
   ["keeps every category between fifty and one hundred words", () => Object.values(categories).every(({ pairs }) => pairs.length >= 50 && pairs.length <= 100)],
+  ["keeps category keys in the class naming pattern", () => Object.keys(categories).every((key) => /^[a-z][A-Za-z0-9]*$/.test(key))],
+  ["keeps unique words inside each category", () => Object.values(categories).every(({ pairs }) => {
+    const words = pairs.map(({ word }) => word.normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLocaleLowerCase());
+    return new Set(words).size === words.length;
+  })],
   ["keeps three distinct meaningful one-word clues on every word", () => allPairs.every(({ word, clues }) => clues.length === 3 && new Set(clues).size === 3 && clues.every((clue) => /^\S+$/.test(clue) && !["Ligado", "Contexto", "Relação"].includes(clue) && clue.toLocaleLowerCase() !== word.toLocaleLowerCase()))],
   ["selects a clue using the supplied random function", () => {
     const pair = allPairs[0];

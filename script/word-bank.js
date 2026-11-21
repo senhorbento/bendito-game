@@ -9,15 +9,7 @@ import { rioDeJaneiro } from "./categories/rio-de-janeiro.js";
 import { sports } from "./categories/sports.js";
 import { technology } from "./categories/technology.js";
 
-const additionalClues = {
-  Cachorro: ["Latido", "Canino"], Gato: ["Miau", "Felino"], Girafa: ["Pescoço", "Manchas"], Elefante: ["Grande", "Manada"], Leão: ["Selva", "Rugido"], Tigre: ["Listras", "Rugido"], Zebra: ["Listras", "Manada"], Macaco: ["Banana", "Primata"], Coelho: ["Cenoura", "Orelhas"], Cavalo: ["Galope", "Crina"], Vaca: ["Pasto", "Rebanho"], Porco: ["Lama", "Grunhido"], Ovelha: ["Lã", "Rebanho"], Cabra: ["Chifres", "Montanha"], Galinha: ["Ovos", "Penas"], Galo: ["Canto", "Crista"], Pato: ["Penas", "Quáquá"], Ganso: ["Penas", "Bando"], Peru: ["Ave", "Penas"], Pinguim: ["Gelo", "Antártida"], Urso: ["Mel", "Hibernação"], Panda: ["Bambu", "China"], Lobo: ["Uivo", "Floresta"], Raposa: ["Astúcia", "Cauda"], Onça: ["Pintada", "Amazônia"], Guepardo: ["Velocidade", "Manchas"], Hipopótamo: ["Grande", "África"], Rinoceronte: ["Chifre", "África"], Hiena: ["Riso", "Alcateia"], Canguru: ["Bolsa", "Austrália"], Coala: ["Eucalipto", "Austrália"], Preguiça: ["Lentidão", "Garras"], Morcego: ["Noite", "Asas"], Esquilo: ["Nozes", "Cauda"], Ouriço: ["Espinhos", "Bola"], Lontra: ["Rio", "Bigodes"], Foca: ["Gelo", "Bigodes"], Baleia: ["Oceano", "Sopro"], Golfinho: ["Oceano", "Inteligência"], Tubarão: ["Oceano", "Predador"], Polvo: ["Tentáculos", "Tinta"], Caranguejo: ["Pinças", "Praia"], Tartaruga: ["Casco", "Ovos"], Crocodilo: ["Pântano", "Répteis"], Iguana: ["Réptil", "Cauda"], Cobra: ["Veneno", "Rastejo"], Sapo: ["Salto", "Anfíbio"], Águia: ["Garras", "Predador"], Coruja: ["Olhos", "Voo"], Arara: ["Amazônia", "Bico"]
-};
-
 function normalizePair(pair) {
-  if (Array.isArray(pair)) {
-    const [word, clue] = pair;
-    return { word, clues: [clue, ...(additionalClues[word] || ["Pista", "Sinal"])] };
-  }
   return { ...pair, clues: [...pair.clues] };
 }
 
