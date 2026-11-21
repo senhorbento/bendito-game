@@ -16,7 +16,7 @@ import { renderHomeScreen as renderHomeScreenModule } from "./screens/home-scree
 import { renderRevealScreen } from "./screens/reveal-screen.js";
 import { renderDiscussionScreen } from "./screens/discussion-screen.js";
 import { renderResultsScreen } from "./screens/results-screen.js";
-import { appendVersionFooter as appendScreenVersionFooter, createElement as createScreenElement } from "./screens/screen-helpers.js";
+import { appendVersionFooter, createButton, createElement } from "./screens/screen-helpers.js";
 
 const app = document.querySelector("#app");
 let state = loadState();
@@ -69,21 +69,6 @@ function updateState(nextState) {
   state = nextState;
   saveState(state);
   render();
-}
-
-function createElement(tag, className, text) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (text !== undefined) element.textContent = text;
-  return element;
-}
-
-function createButton(text, className = "button", handler, disabled = false) {
-  const button = createElement("button", className, text);
-  button.type = "button";
-  button.disabled = disabled;
-  if (handler) button.addEventListener("click", handler);
-  return button;
 }
 
 function goHome() {
@@ -188,7 +173,7 @@ function renderSetup() {
   nextButton.id = "setup-next-button";
   screen.append(nextButton);
   app.replaceChildren(screen);
-  appendVersionFooter(screen);
+  appendVersionFooter(screen, APP_VERSION);
 }
 
 function renderRoundSetup() {
@@ -278,7 +263,7 @@ function renderRoundSetup() {
   actions.append(createButton("Voltar para jogadores", "button secondary", () => renderSetup()));
   screen.append(actions);
   app.replaceChildren(screen);
-  appendVersionFooter(screen);
+  appendVersionFooter(screen, APP_VERSION);
 }
 
 function appendSetupPlayer(screen, index, list = screen.querySelector("#setup-player-list")) {
@@ -378,10 +363,6 @@ function removePlayer(index) {
   render();
 }
 
-function appendVersionFooter(screen) {
-  screen.append(createElement("small", "app-version", `BENDITO · versão ${APP_VERSION}`));
-}
-
 function renderReveal() {
   renderRevealScreen({
     app,
@@ -443,7 +424,7 @@ function renderVoting() {
     screen.append(createElement("h1", "", voter));
     screen.append(createElement("p", "muted", "Passe o celular para esta pessoa.") , createButton("Votar", "button", () => updateState(beginVotingStep(state))));
     app.append(screen);
-    appendVersionFooter(screen);
+    appendVersionFooter(screen, APP_VERSION);
     return;
   }
   const voterIsBendito = state.roles[state.votingIndex] === "bendito";
@@ -490,7 +471,7 @@ function renderVoting() {
     screen.append(createButton("Entendi, passar o celular", "button", () => submitVote(undefined)));
   }
   app.append(screen);
-  appendVersionFooter(screen);
+  appendVersionFooter(screen, APP_VERSION);
 }
 
 function renderGroupVoting() {
@@ -517,7 +498,7 @@ function renderGroupVoting() {
     updateState(completeRound({ ...state, votes, wordAttempts: [], results: evaluateVotes(votes, state.roles, [], state.pair.word) }));
   }));
   app.append(screen);
-  appendVersionFooter(screen);
+  appendVersionFooter(screen, APP_VERSION);
 }
 
 function submitVote(targetIndexes, wordAttempt) {
