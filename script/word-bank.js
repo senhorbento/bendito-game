@@ -37,6 +37,11 @@ export function selectClue(pair, random = Math.random) {
 }
 
 export function selectWordPair(categoryKey = "random", usedWords = [], random = Math.random) {
+  if (categoryKey === "random") {
+    const categoryKeys = Object.keys(categories);
+    const selectedCategoryKey = categoryKeys[Math.floor(random() * categoryKeys.length)];
+    return selectWordPair(selectedCategoryKey, usedWords, random);
+  }
   const pool = getWordPool(categoryKey);
   const availablePairs = pool.filter((pair) => !usedWords.includes(pair.word));
   const candidates = availablePairs.length > 0 ? availablePairs : pool;

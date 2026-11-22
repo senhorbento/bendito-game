@@ -13,7 +13,7 @@ import { STATE_SCHEMA_VERSION } from "../script/persistence.js";
 import { getEligibleTargets, getWordAttemptOptions, hasRequiredTargets, toggleTarget } from "../script/voting-rules.js";
 import { normalizeWord, validateWordBank } from "../script/word-bank-validation.js";
 import { formatRemainingTime } from "../script/timer.js";
-import { categories, allPairs, selectClue } from "../script/word-bank.js";
+import { categories, allPairs, selectClue, selectWordPair } from "../script/word-bank.js";
 import { getDefaultBenditoCount } from "../script/game-rules.js";
 
 const tests = [
@@ -89,6 +89,10 @@ const tests = [
     return validateWordBank({ sample: { pairs } }, 1) === true;
   }],
   ["rejects a clue equal to its own word and clues over two words", () => !validateWordBank({ sample: { pairs: [{ word: "Praia", clues: ["Praia", "Areia fina", "Muito calor hoje"] }] } }, 1)],
+  ["random mode chooses a category before choosing a word", () => {
+    const pair = selectWordPair("random", [], () => 0);
+    return pair.categoryKey === Object.keys(categories)[0] && pair.categoryLabel === categories[Object.keys(categories)[0]].label;
+  }],
   ["selects a clue using the supplied random function", () => {
     const pair = allPairs[0];
     return selectClue(pair, () => 0) === pair.clues[0] && selectClue(pair, () => 0.99) === pair.clues[2];

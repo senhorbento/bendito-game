@@ -9,6 +9,7 @@ export function renderResultsScreen({ app, state, version, wordPoolLength, onRep
   const benditoNames = state.players.filter((_, index) => state.roles[index] === "bendito");
   screen.append(createElement("span", "eyebrow", "Revelação final"));
   screen.append(createElement("span", "word-counter", `${state.usedWords.length} / ${wordPoolLength} palavras usadas`));
+  screen.append(createElement("span", "eyebrow results-category", `Tema: ${state.categoryLabel}`));
   screen.append(createElement("h1", "", "Quem era o BENDITO?"));
   const wordReveal = createElement("div", "results-word-reveal");
   wordReveal.append(createElement("span", "results-word-label", "Palavra"));
