@@ -90,8 +90,27 @@ const tests = [
   }],
   ["rejects a clue equal to its own word and clues over two words", () => !validateWordBank({ sample: { pairs: [{ word: "Praia", clues: ["Praia", "Areia fina", "Muito calor hoje"] }] } }, 1)],
   ["random mode chooses a category before choosing a word", () => {
+    const categoryKeys = Object.keys(categories);
     const pair = selectWordPair("random", [], () => 0);
-    return pair.categoryKey === Object.keys(categories)[0] && pair.categoryLabel === categories[Object.keys(categories)[0]].label;
+    return pair.categoryKey === categoryKeys[0] && pair.categoryLabel === categories[categoryKeys[0]].label;
+  }],
+  ["random mode changes category between successive words", () => {
+    const categoryKeys = Object.keys(categories);
+    const first = selectWordPair("random", [], () => 0);
+    const second = selectWordPair("random", [first.word], () => (categoryKeys.length - 1) / categoryKeys.length);
+    return first.categoryKey === categoryKeys[0]
+      && second.categoryKey === categoryKeys[categoryKeys.length - 1]
+      && first.categoryKey !== second.categoryKey;
+  }],
+  ["random mode keeps each selected word tied to its category", () => {
+    const categoryKeys = Object.keys(categories);
+    return categoryKeys.every((categoryKey, index) => {
+      const randomValue = index / categoryKeys.length;
+      const pair = selectWordPair("random", [], () => randomValue);
+      return pair.categoryKey === categoryKey
+        && pair.categoryLabel === categories[categoryKey].label
+        && categories[categoryKey].pairs.some(({ word }) => word === pair.word);
+    });
   }],
   ["selects a clue using the supplied random function", () => {
     const pair = allPairs[0];
