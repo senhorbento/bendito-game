@@ -78,7 +78,17 @@ const tests = [
     const words = pairs.map(({ word }) => word.normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLocaleLowerCase());
     return new Set(words).size === words.length;
   })],
-  ["keeps three distinct meaningful one-word clues on every word", () => allPairs.every(({ word, clues }) => clues.length === 3 && new Set(clues).size === 3 && clues.every((clue) => /^\S+$/.test(clue) && !["Ligado", "Contexto", "Relação"].includes(clue) && clue.toLocaleLowerCase() !== word.toLocaleLowerCase()))],
+  ["keeps three distinct clues with at most two words on every word", () => allPairs.every(({ word, clues }) => clues.length === 3 && new Set(clues.map(normalizeWord)).size === 3 && clues.every((clue) => /^\S+(?:\s+\S+)?$/.test(clue.trim()) && normalizeWord(clue) !== normalizeWord(word)))],
+  ["allows repeated clues and clues from another word", () => {
+    const pairs = Array.from({ length: 50 }, (_, index) => ({
+      word: `Palavra${index}`,
+      clues: [`Dica${index}`, `Relação${index}`, `Pista${index}`]
+    }));
+    pairs[0].clues = ["Dica compartilhada", "Rio", "Sol"];
+    pairs[1].clues = ["Dica compartilhada", "Calor intenso", "Praia"];
+    return validateWordBank({ sample: { pairs } }, 1) === true;
+  }],
+  ["rejects a clue equal to its own word and clues over two words", () => !validateWordBank({ sample: { pairs: [{ word: "Praia", clues: ["Praia", "Areia fina", "Muito calor hoje"] }] } }, 1)],
   ["selects a clue using the supplied random function", () => {
     const pair = allPairs[0];
     return selectClue(pair, () => 0) === pair.clues[0] && selectClue(pair, () => 0.99) === pair.clues[2];

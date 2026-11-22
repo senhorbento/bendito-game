@@ -16,6 +16,6 @@ export function validateWordBank(categories, expectedCategoryCount = 10) {
         && Array.isArray(clues)
         && clues.length === 3
         && new Set(clues.map(normalizeWord)).size === 3
-        && clues.every((clue) => typeof clue === "string" && /^\S+$/.test(clue) && clue.trim().toLocaleLowerCase() !== word.trim().toLocaleLowerCase());
+        && clues.every((clue) => typeof clue === "string" && /^\S+(?:\s+\S+)?$/.test(clue.trim()) && normalizeWord(clue) !== normalizedWord);
     }));
 }

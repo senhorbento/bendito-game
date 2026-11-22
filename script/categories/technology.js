@@ -48,5 +48,5 @@ export const technology = [
   { word: "Hashtag", clues: ["Etiqueta", "Social", "Marcador"] },
   { word: "Ciberespaço", clues: ["Virtual", "Conexão", "Internet"] },
   { word: "Automação", clues: ["Rotina", "Máquina", "Processo"] },
-  { word: "Dispositivo", clues: ["Aparelho", "Tecnologia", "Uso"] }
+  { word: "Dispositivo", clues: ["Aparelho", "Tecnologia", "Ferramenta"] }
 ];

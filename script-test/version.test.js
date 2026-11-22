@@ -4,7 +4,7 @@ const output = document.querySelector("#test-output");
 const versionPattern = /^\d+\.\d+\.\d+$/;
 const item = document.createElement("li");
 
-if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.15.27") {
+if (versionPattern.test(APP_VERSION) && APP_VERSION === "1.15.28") {
   item.textContent = `OK — mantém a versão semântica ${APP_VERSION}`;
   item.className = "passed";
 } else {
